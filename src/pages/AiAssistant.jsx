@@ -1,0 +1,285 @@
+﻿import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { askHrAiAssistant } from "../services/hrServer";
+
+const SAMPLE_PROMPTS = [
+  "Aaj kon kon present aur late hai?",
+  "Mera leave balance kitna baaqi hai?",
+  "What is the company grace period, half-day, and payroll tax policy?",
+  "Salary 95000 par tax aur net salary kitni hogi?",
+  "Show payroll summary for this month",
+  "Recent audit trail logs dikhao",
+];
+
+function AiAssistant() {
+  const navigate = useNavigate();
+  const [messages, setMessages] = useState([
+    {
+      role: "assistant",
+      text: "Assalam-o-Alaikum! I am your **VertexHR HR & Payroll AI Assistant**.\n\nI can answer questions using live server tools (`get_headcount`, `get_attendance_summary`, `get_late_comers`, `get_leave_summary`, `get_my_leave_balance`, `get_payroll_summary`, `search_employees`) and company policy rules in **English** or **Roman Urdu**.",
+      toolsUsed: [],
+      aiGenerated: true,
+    },
+  ]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const sendPrompt = async (promptText) => {
+    const text = (promptText ?? input).trim();
+    if (!text || loading) return;
+
+    setMessages((prev) => [...prev, { role: "user", text }]);
+    setInput("");
+    setLoading(true);
+
+    try {
+      const res = await askHrAiAssistant({ message: text, mode: "chat", history: messages });
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          text: res.reply,
+          toolsUsed: res.toolsUsed || [],
+          actions: res.actions || [],
+          aiGenerated: true,
+        },
+      ]);
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          text: `âš ï¸ Error: ${err.message || "AI request failed."}`,
+          toolsUsed: [],
+          aiGenerated: true,
+        },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#09090b",
+        color: "#f8fafc",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <header
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "18px 28px",
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          background: "rgba(15, 23, 42, 0.9)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div
+            style={{
+              width: "40px",
+              height: "40px",
+              borderRadius: "12px",
+              background: "linear-gradient(135deg, #10b981, #0d9488)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "19px",
+            }}
+          >
+            âœ¨
+          </div>
+          <div>
+            <h1 style={{ fontSize: "18px", fontWeight: 700, margin: 0 }}>
+              VertexHR AI Assistant (Gemini Tool-Calling)
+            </h1>
+            <span style={{ fontSize: "12px", color: "#34d399" }}>
+              Role-Scoped HR Tools Â· Policy Q&A Â· Roman Urdu & English Â· 20 req/hr Guardrail
+            </span>
+          </div>
+        </div>
+        <button
+          onClick={() => navigate("/")}
+          style={{
+            padding: "8px 14px",
+            borderRadius: "9px",
+            border: "1px solid rgba(255,255,255,0.15)",
+            background: "rgba(255,255,255,0.05)",
+            color: "#e2e8f0",
+            cursor: "pointer",
+          }}
+        >
+          â† Back to Dashboard
+        </button>
+      </header>
+
+      <div
+        style={{
+          maxWidth: "940px",
+          width: "100%",
+          margin: "0 auto",
+          padding: "20px",
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          gap: "16px",
+        }}
+      >
+        {/* Quick Prompts */}
+        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+          {SAMPLE_PROMPTS.map((p) => (
+            <button
+              key={p}
+              type="button"
+              onClick={() => sendPrompt(p)}
+              style={{
+                padding: "7px 12px",
+                borderRadius: "999px",
+                border: "1px solid rgba(16, 185, 129, 0.35)",
+                background: "rgba(5, 150, 105, 0.12)",
+                color: "#a7f3d0",
+                fontSize: "12px",
+                cursor: "pointer",
+              }}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+
+        {/* Chat Messages Window */}
+        <div
+          style={{
+            flex: 1,
+            background: "rgba(15, 23, 42, 0.78)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: "16px",
+            padding: "20px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "14px",
+            maxHeight: "62vh",
+            overflowY: "auto",
+          }}
+        >
+          {messages.map((m, idx) => (
+            <div
+              key={idx}
+              style={{
+                alignSelf: m.role === "user" ? "flex-end" : "flex-start",
+                maxWidth: "82%",
+                background:
+                  m.role === "user"
+                    ? "linear-gradient(135deg, #059669, #0d9488)"
+                    : "rgba(30, 41, 59, 0.9)",
+                border:
+                  m.role === "user"
+                    ? "none"
+                    : "1px solid rgba(255,255,255,0.1)",
+                borderRadius: "14px",
+                padding: "13px 16px",
+                fontSize: "13.5px",
+                lineHeight: 1.55,
+                whiteSpace: "pre-wrap",
+              }}
+            >
+              {m.role === "assistant" && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    flexWrap: "wrap",
+                    marginBottom: "6px",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "10.5px",
+                      padding: "2px 8px",
+                      borderRadius: "999px",
+                      background: "rgba(16, 185, 129, 0.25)",
+                      color: "#6ee7b7",
+                      fontWeight: 700,
+                    }}
+                  >
+                    AI-generated
+                  </span>
+                  {m.toolsUsed?.map((t) => (
+                    <span
+                      key={t}
+                      style={{
+                        fontSize: "10.5px",
+                        padding: "2px 8px",
+                        borderRadius: "999px",
+                        background: "rgba(16, 185, 129, 0.18)",
+                        color: "#6ee7b7",
+                        fontFamily: "monospace",
+                      }}
+                    >
+                      ðŸ›  {t}()
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div>{m.text}</div>
+            </div>
+          ))}
+          {loading && (
+            <div style={{ color: "#34d399", fontSize: "13px" }}>
+              âœ¨ Running HR tools & generating response (15s timeout active)...
+            </div>
+          )}
+        </div>
+
+        {/* Input Box */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            sendPrompt();
+          }}
+          style={{ display: "flex", gap: "10px" }}
+        >
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Ask in English or Roman Urdu (e.g. 'Mera leave balance kya hai?' or 'Show late comers')..."
+            style={{
+              flex: 1,
+              padding: "12px 16px",
+              borderRadius: "12px",
+              border: "1px solid rgba(255,255,255,0.16)",
+              background: "rgba(15, 23, 42, 0.9)",
+              color: "#fff",
+              fontSize: "14px",
+            }}
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              padding: "12px 24px",
+              borderRadius: "12px",
+              border: "none",
+              background: "linear-gradient(135deg, #059669, #0d9488)",
+              color: "#fff",
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            Send
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default AiAssistant;
+
