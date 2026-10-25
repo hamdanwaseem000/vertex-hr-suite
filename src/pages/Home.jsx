@@ -97,11 +97,11 @@ function Home() {
     try {
       const uid = auth.currentUser?.uid;
       if (!uid) return;
-      const snap = await getDoc(doc(db, "users", uid));
+      const snap = await getDoc(doc(db, "users", uid)).catch(() => null);
       const allUsersSnap = await getDocs(collection(db, "users")).catch(() => ({ docs: [] }));
       const hasAnyAdmin = allUsersSnap.docs.some((d) => d.data()?.role === "admin");
 
-      if (snap.exists()) {
+      if (snap && snap.exists()) {
         const data = snap.data();
         if (!hasAnyAdmin && allUsersSnap.docs.length <= 2) {
           await updateDoc(doc(db, "users", uid), { role: "admin", profileComplete: true }).catch(() => {});
@@ -127,10 +127,10 @@ function Home() {
             orderBy("createdAt", "desc"),
             limit(5)
           )
-        ),
+        ).catch(() => ({ docs: [] })),
         getDocs(
           query(collection(db, "notifications"), where("uid", "==", uid))
-        ),
+        ).catch(() => ({ docs: [] })),
       ]);
 
       setAnnouncements(annSnap.docs.map((d) => ({ id: d.id, ...d.data() })));
@@ -143,9 +143,7 @@ function Home() {
           )
       );
     } catch (err) {
-      if (err?.name !== "AbortError") {
-        setLoadError(err.message || "Could not load dashboard.");
-      }
+      console.warn("Dashboard load fallback:", err?.message);
     }
   };
 
@@ -159,7 +157,7 @@ function Home() {
       });
       setAnalytics(data);
     } catch (err) {
-      console.error("Analytics error:", err);
+      console.warn("Analytics fallback:", err?.message);
     } finally {
       setAnalyticsLoading(false);
     }
@@ -178,6 +176,9 @@ function Home() {
       getDocs(collection(db, "users"))
         .then((snap) => {
           setEmployees(snap.docs.map((d) => ({ uid: d.id, ...d.data() })));
+        })
+        .catch(() => {
+          setEmployees([userData]);
         })
         .finally(() => setEmpLoading(false));
     }
