@@ -1,4 +1,4 @@
-﻿window.addEventListener(
+window.addEventListener(
   "unhandledrejection",
   (event) => {
     const reason = event.reason;

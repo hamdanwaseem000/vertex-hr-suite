@@ -1,4 +1,4 @@
-﻿import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
@@ -45,15 +45,14 @@ function App() {
       <div
         style={{
           minHeight: "100vh",
-          background: "#09090b",
+          background: "#041116",
           color: "#cbd5e1",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           fontSize: "15px",
         }}
-      >
-        Loading VertexHR HR Portal...
+      > Loading VertexHR HR Portal...
       </div>
     );
   }
@@ -212,4 +211,3 @@ function App() {
 }
 
 export default App;
-

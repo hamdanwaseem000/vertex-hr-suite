@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { db, auth } from "../firebase";
@@ -41,17 +41,16 @@ function actionBadgeStyle(action = "") {
     };
   }
   return {
-    bg: "rgba(5, 150, 105, 0.2)",
-    border: "rgba(16, 185, 129, 0.45)",
-    color: "#6ee7b7",
+    bg: "rgba(13, 148, 136, 0.2)",
+    border: "rgba(20, 184, 166, 0.45)",
+    color: "#5eead4",
   };
 }
 
 function renderCleanKeyValuePills(dataObj, tone = "after") {
   if (!dataObj || typeof dataObj !== "object") {
     return (
-      <span style={{ color: "#64748b", fontStyle: "italic", fontSize: "12px" }}>
-        None (Initial State)
+      <span style={{ color: "#64748b", fontStyle: "italic", fontSize: "12px" }}> None (Initial State)
       </span>
     );
   }
@@ -60,8 +59,7 @@ function renderCleanKeyValuePills(dataObj, tone = "after") {
   );
   if (entries.length === 0) {
     return (
-      <span style={{ color: "#64748b", fontStyle: "italic", fontSize: "12px" }}>
-        Empty state
+      <span style={{ color: "#64748b", fontStyle: "italic", fontSize: "12px" }}> Empty state
       </span>
     );
   }
@@ -192,10 +190,10 @@ function AuditLogs() {
       });
       await loadAuditTrail();
       setStatusBanner(
-        "âœ… Live verification event recorded in the Immutable Audit Trail!"
+        " Live verification event recorded in the Immutable Audit Trail!"
       );
     } catch (err) {
-      setStatusBanner(`âš ï¸ ${err.message}`);
+      setStatusBanner(` ${err.message}`);
     } finally {
       setTestingAudit(false);
     }
@@ -262,15 +260,12 @@ function AuditLogs() {
 
   // KPI metrics
   const totalCount = logs.length;
-  const attCount = logs.filter((l) =>
-    String(l.entity || "").includes("attendance")
+  const attCount = logs.filter((l) => String(l.entity || "").includes("attendance")
   ).length;
-  const leaveCount = logs.filter((l) =>
-    String(l.entity || "").includes("leave")
+  const leaveCount = logs.filter((l) => String(l.entity || "").includes("leave")
   ).length;
   const payrollSecCount = logs.filter(
-    (l) =>
-      String(l.entity || "").includes("payroll") ||
+    (l) => String(l.entity || "").includes("payroll") ||
       String(l.entity || "").includes("users") ||
       String(l.entity || "").includes("settings")
   ).length;
@@ -279,9 +274,9 @@ function AuditLogs() {
     <div
       style={{
         minHeight: "100vh",
-        background: "#09090b",
+        background: "#041116",
         color: "#f8fafc",
-        fontFamily: "'DM Sans', sans-serif",
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
       }}
     >
       {/* Topbar */}
@@ -294,7 +289,7 @@ function AuditLogs() {
           gap: "12px",
           padding: "18px 28px",
           borderBottom: "1px solid rgba(255,255,255,0.08)",
-          background: "rgba(15, 23, 42, 0.92)",
+          background: "rgba(7, 30, 38, 0.92)",
           backdropFilter: "blur(12px)",
           position: "sticky",
           top: 0,
@@ -315,12 +310,11 @@ function AuditLogs() {
               boxShadow: "0 4px 16px rgba(16, 185, 129, 0.35)",
             }}
           >
-            ðŸ›¡
+            
           </div>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <h1 style={{ fontSize: "18px", fontWeight: 700, margin: 0 }}>
-                Immutable System Audit Trail
+              <h1 style={{ fontSize: "18px", fontWeight: 700, margin: 0 }}> Immutable System Audit Trail
               </h1>
               <span
                 style={{
@@ -331,12 +325,10 @@ function AuditLogs() {
                   color: "#6ee7b7",
                   fontWeight: 700,
                 }}
-              >
-                â— LIVE STREAM
+              > LIVE STREAM
               </span>
             </div>
-            <span style={{ fontSize: "12px", color: "#94a3b8" }}>
-              Append-Only Security Log Â· Actor, Action, Entity & Before/After State Diffs
+            <span style={{ fontSize: "12px", color: "#94a3b8" }}> Append-Only Security Log | Actor, Action, Entity & Before/After State Diffs
             </span>
           </div>
         </div>
@@ -357,7 +349,7 @@ function AuditLogs() {
               cursor: "pointer",
             }}
           >
-            {testingAudit ? "Recording..." : "âœ“ Verify Audit Log"}
+            {testingAudit ? "Recording..." : " Verify Audit Log"}
           </button>
           <button
             type="button"
@@ -365,15 +357,14 @@ function AuditLogs() {
             style={{
               padding: "8px 14px",
               borderRadius: "9px",
-              border: "1px solid rgba(16, 185, 129, 0.4)",
-              background: "rgba(5, 150, 105, 0.16)",
-              color: "#a7f3d0",
+              border: "1px solid rgba(20, 184, 166, 0.4)",
+              background: "rgba(13, 148, 136, 0.16)",
+              color: "#99f6e4",
               fontWeight: 600,
               fontSize: "12.5px",
               cursor: "pointer",
             }}
-          >
-            â¬‡ Export CSV
+          > Export CSV
           </button>
           <button
             type="button"
@@ -388,7 +379,7 @@ function AuditLogs() {
               cursor: "pointer",
             }}
           >
-            â† Back to Dashboard
+            <- Back to Dashboard
           </button>
         </div>
       </header>
@@ -422,81 +413,73 @@ function AuditLogs() {
         >
           <div
             style={{
-              background: "rgba(15, 23, 42, 0.85)",
+              background: "rgba(7, 30, 38, 0.85)",
               border: "1px solid rgba(255,255,255,0.08)",
               borderTop: "3px solid #10b981",
               borderRadius: "14px",
               padding: "16px",
             }}
           >
-            <div style={{ fontSize: "12px", color: "#94a3b8" }}>
-              Total Immutable Events
+            <div style={{ fontSize: "12px", color: "#94a3b8" }}> Total Immutable Events
             </div>
             <div style={{ fontSize: "26px", fontWeight: 800, marginTop: "4px" }}>
               {totalCount}
             </div>
-            <div style={{ fontSize: "11px", color: "#34d399", marginTop: "4px" }}>
-              Append-only (`update/delete: false`)
+            <div style={{ fontSize: "11px", color: "#2dd4bf", marginTop: "4px" }}> Append-only (`update/delete: false`)
             </div>
           </div>
 
           <div
             style={{
-              background: "rgba(15, 23, 42, 0.85)",
+              background: "rgba(7, 30, 38, 0.85)",
               border: "1px solid rgba(255,255,255,0.08)",
               borderTop: "3px solid #10b981",
               borderRadius: "14px",
               padding: "16px",
             }}
           >
-            <div style={{ fontSize: "12px", color: "#94a3b8" }}>
-              Attendance & Check-In Logs
+            <div style={{ fontSize: "12px", color: "#94a3b8" }}> Attendance & Check-In Logs
             </div>
             <div style={{ fontSize: "26px", fontWeight: 800, marginTop: "4px" }}>
               {attCount}
             </div>
-            <div style={{ fontSize: "11px", color: "#6ee7b7", marginTop: "4px" }}>
-              Self Check-In/Out & HR Overrides
+            <div style={{ fontSize: "11px", color: "#6ee7b7", marginTop: "4px" }}> Self Check-In/Out & HR Overrides
             </div>
           </div>
 
           <div
             style={{
-              background: "rgba(15, 23, 42, 0.85)",
+              background: "rgba(7, 30, 38, 0.85)",
               border: "1px solid rgba(255,255,255,0.08)",
               borderTop: "3px solid #f59e0b",
               borderRadius: "14px",
               padding: "16px",
             }}
           >
-            <div style={{ fontSize: "12px", color: "#94a3b8" }}>
-              Leave & Approval Events
+            <div style={{ fontSize: "12px", color: "#94a3b8" }}> Leave & Approval Events
             </div>
             <div style={{ fontSize: "26px", fontWeight: 800, marginTop: "4px" }}>
               {leaveCount}
             </div>
-            <div style={{ fontSize: "11px", color: "#fcd34d", marginTop: "4px" }}>
-              Applications, Approvals & Rejections
+            <div style={{ fontSize: "11px", color: "#fcd34d", marginTop: "4px" }}> Applications, Approvals & Rejections
             </div>
           </div>
 
           <div
             style={{
-              background: "rgba(15, 23, 42, 0.85)",
+              background: "rgba(7, 30, 38, 0.85)",
               border: "1px solid rgba(255,255,255,0.08)",
               borderTop: "3px solid #38bdf8",
               borderRadius: "14px",
               padding: "16px",
             }}
           >
-            <div style={{ fontSize: "12px", color: "#94a3b8" }}>
-              Payroll, Users & Settings
+            <div style={{ fontSize: "12px", color: "#94a3b8" }}> Payroll, Users & Settings
             </div>
             <div style={{ fontSize: "26px", fontWeight: 800, marginTop: "4px" }}>
               {payrollSecCount}
             </div>
-            <div style={{ fontSize: "11px", color: "#7dd3fc", marginTop: "4px" }}>
-              Salary Runs, Roles & Security
+            <div style={{ fontSize: "11px", color: "#7dd3fc", marginTop: "4px" }}> Salary Runs, Roles & Security
             </div>
           </div>
         </div>
@@ -524,8 +507,8 @@ function AuditLogs() {
                     ? "1px solid #10b981"
                     : "1px solid rgba(255,255,255,0.12)",
                   background: active
-                    ? "linear-gradient(135deg, #059669, #0d9488)"
-                    : "rgba(15, 23, 42, 0.8)",
+                    ? "linear-gradient(135deg, #0d9488, #0284c7)"
+                    : "rgba(7, 30, 38, 0.8)",
                   color: active ? "#fff" : "#cbd5e1",
                   fontSize: "12px",
                   fontWeight: 600,
@@ -547,7 +530,7 @@ function AuditLogs() {
             marginBottom: "18px",
             flexWrap: "wrap",
             gap: "12px",
-            background: "rgba(15, 23, 42, 0.75)",
+            background: "rgba(7, 30, 38, 0.75)",
             padding: "14px 16px",
             borderRadius: "14px",
             border: "1px solid rgba(255,255,255,0.08)",
@@ -557,7 +540,7 @@ function AuditLogs() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="ðŸ” Search by employee name, action, entity ID, or status..."
+            placeholder=" Search by employee name, action, entity ID, or status..."
             style={{
               flex: "1 1 280px",
               padding: "9px 14px",
@@ -583,8 +566,7 @@ function AuditLogs() {
               }}
             >
               {actions.map((a) => (
-                <option key={a} value={a}>
-                  Action: {a}
+                <option key={a} value={a}> Action: {a}
                 </option>
               ))}
             </select>
@@ -607,8 +589,7 @@ function AuditLogs() {
               <option value="employee">Role: Employee</option>
             </select>
 
-            <span style={{ fontSize: "12.5px", color: "#94a3b8" }}>
-              Showing <strong>{filtered.length}</strong> of {logs.length} events
+            <span style={{ fontSize: "12.5px", color: "#94a3b8" }}> Showing <strong>{filtered.length}</strong> of {logs.length} events
             </span>
           </div>
         </div>
@@ -620,11 +601,10 @@ function AuditLogs() {
               padding: "40px",
               textAlign: "center",
               color: "#94a3b8",
-              background: "rgba(15, 23, 42, 0.6)",
+              background: "rgba(7, 30, 38, 0.6)",
               borderRadius: "14px",
             }}
-          >
-            Loading real-time audit trail...
+          > Loading real-time audit trail...
           </div>
         ) : filtered.length === 0 ? (
           <div
@@ -632,13 +612,12 @@ function AuditLogs() {
               padding: "40px",
               textAlign: "center",
               color: "#94a3b8",
-              background: "rgba(15, 23, 42, 0.6)",
+              background: "rgba(7, 30, 38, 0.6)",
               borderRadius: "14px",
               border: "1px solid rgba(255,255,255,0.08)",
             }}
           >
-            <p style={{ margin: "0 0 12px", fontSize: "14px" }}>
-              No matching audit events found for the current filter.
+            <p style={{ margin: "0 0 12px", fontSize: "14px" }}> No matching audit events found for the current filter.
             </p>
             <button
               type="button"
@@ -652,13 +631,12 @@ function AuditLogs() {
                 padding: "8px 16px",
                 borderRadius: "8px",
                 border: "none",
-                background: "#059669",
+                background: "#0d9488",
                 color: "#fff",
                 cursor: "pointer",
                 fontWeight: 600,
               }}
-            >
-              Reset Filters
+            > Reset Filters
             </button>
           </div>
         ) : (
@@ -670,7 +648,7 @@ function AuditLogs() {
                 <div
                   key={log.id}
                   style={{
-                    background: "rgba(15, 23, 42, 0.88)",
+                    background: "rgba(7, 30, 38, 0.88)",
                     border: "1px solid rgba(255,255,255,0.09)",
                     borderRadius: "14px",
                     padding: "16px 18px",
@@ -711,7 +689,7 @@ function AuditLogs() {
                       </span>
 
                       <span style={{ fontSize: "13.5px", fontWeight: 700, color: "#f8fafc" }}>
-                        ðŸ‘¤ {log.actorName || "User"}
+                         {log.actorName || "User"}
                       </span>
 
                       <span
@@ -728,10 +706,9 @@ function AuditLogs() {
                         {log.actorRole || "user"}
                       </span>
 
-                      <span style={{ fontSize: "12px", color: "#94a3b8" }}>
-                        Entity: <strong style={{ color: "#e2e8f0" }}>{log.entity}</strong>{" "}
+                      <span style={{ fontSize: "12px", color: "#94a3b8" }}> Entity: <strong style={{ color: "#e2e8f0" }}>{log.entity}</strong>{" "}
                         {log.entityId ? (
-                          <code style={{ color: "#34d399" }}>#{log.entityId.slice(0, 18)}</code>
+                          <code style={{ color: "#2dd4bf" }}>#{log.entityId.slice(0, 18)}</code>
                         ) : (
                           ""
                         )}
@@ -740,12 +717,11 @@ function AuditLogs() {
 
                     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                       <span style={{ fontSize: "12px", color: "#94a3b8" }}>
-                        ðŸ•’ {log.dateFormatted || "Recorded"}
+                         {log.dateFormatted || "Recorded"}
                       </span>
                       <button
                         type="button"
-                        onClick={() =>
-                          setRawJsonOpen((prev) => ({
+                        onClick={() => setRawJsonOpen((prev) => ({
                             ...prev,
                             [log.id]: !prev[log.id],
                           }))
@@ -789,8 +765,7 @@ function AuditLogs() {
                           marginBottom: "6px",
                           letterSpacing: "0.04em",
                         }}
-                      >
-                        PREVIOUS STATE (BEFORE)
+                      > PREVIOUS STATE (BEFORE)
                       </div>
                       {renderCleanKeyValuePills(log.before, "before")}
                     </div>
@@ -811,8 +786,7 @@ function AuditLogs() {
                           marginBottom: "6px",
                           letterSpacing: "0.04em",
                         }}
-                      >
-                        UPDATED STATE (AFTER)
+                      > UPDATED STATE (AFTER)
                       </div>
                       {renderCleanKeyValuePills(log.after, "after")}
                     </div>
@@ -867,4 +841,3 @@ function AuditLogs() {
 }
 
 export default AuditLogs;
-

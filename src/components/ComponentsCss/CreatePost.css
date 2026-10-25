@@ -1,6 +1,6 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap');
 
-/* â”€â”€ Wrapper â”€â”€ */
+/*  Wrapper  */
 .cp-wrapper {
   width: 100%;
   max-width: 640px;
@@ -14,7 +14,7 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* â”€â”€ Page title â”€â”€ */
+/*  Page title  */
 .cp-title {
   font-family: 'Outfit', sans-serif;
   font-size: 1.9rem;
@@ -27,7 +27,7 @@
   background-clip: text;
 }
 
-/* â”€â”€ Card â”€â”€ */
+/*  Card  */
 .cp-card {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -37,21 +37,21 @@
   flex-direction: column;
   gap: 1.4rem;
   box-shadow:
-    0 0 0 1px rgba(13, 148, 136, 0.12),
+    0 0 0 1px rgba(99, 60, 255, 0.12),
     0 32px 64px rgba(0, 0, 0, 0.5),
     inset 0 1px 0 rgba(255,255,255,0.06);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
-/* â”€â”€ Field group â”€â”€ */
+/*  Field group  */
 .cp-field-group {
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
 }
 
-/* â”€â”€ Label â”€â”€ */
+/*  Label  */
 .cp-label {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.78rem;
@@ -61,7 +61,7 @@
   color: rgba(255, 255, 255, 0.35);
 }
 
-/* â”€â”€ Input & Textarea â”€â”€ */
+/*  Input & Textarea  */
 .cp-input {
   width: 100%;
   box-sizing: border-box;
@@ -71,7 +71,7 @@
   padding: 0.82rem 1rem;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.95rem;
-  color: #ecfeff;
+  color: #f0eeff;
   outline: none;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
   caret-color: #2dd4bf;
@@ -84,9 +84,9 @@
 }
 
 .cp-input:focus {
-  border-color: rgba(45, 212, 191, 0.55);
-  background: rgba(45, 212, 191, 0.07);
-  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.1);
+  border-color: rgba(167, 139, 250, 0.55);
+  background: rgba(167, 139, 250, 0.07);
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.1);
 }
 
 .cp-textarea {
@@ -94,22 +94,22 @@
   line-height: 1.6;
 }
 
-/* â”€â”€ Custom file input â”€â”€ */
+/*  Custom file input  */
 .cp-file-label {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 0.82rem 1rem;
   background: rgba(255, 255, 255, 0.04);
-  border: 1px dashed rgba(45, 212, 191, 0.3);
+  border: 1px dashed rgba(167, 139, 250, 0.3);
   border-radius: 10px;
   cursor: pointer;
   transition: background 0.2s, border-color 0.2s;
 }
 
 .cp-file-label:hover {
-  background: rgba(45, 212, 191, 0.07);
-  border-color: rgba(45, 212, 191, 0.55);
+  background: rgba(167, 139, 250, 0.07);
+  border-color: rgba(167, 139, 250, 0.55);
 }
 
 .cp-file-icon {
@@ -125,18 +125,18 @@
 }
 
 .cp-file-label:hover .cp-file-text {
-  color: rgba(45, 212, 191, 0.9);
+  color: rgba(167, 139, 250, 0.9);
 }
 
 .cp-file-hidden {
   display: none;
 }
 
-/* â”€â”€ Image preview â”€â”€ */
+/*  Image preview  */
 .cp-preview {
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid rgba(45, 212, 191, 0.2);
+  border: 1px solid rgba(167, 139, 250, 0.2);
   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
 }
 
@@ -146,7 +146,7 @@
   border-radius: 12px;
 }
 
-/* â”€â”€ Submit button â”€â”€ */
+/*  Submit button  */
 .cp-btn {
   width: 100%;
   padding: 0.92rem 1rem;
@@ -185,7 +185,7 @@
   cursor: not-allowed;
 }
 
-/* â”€â”€ Loading spinner â”€â”€ */
+/*  Loading spinner  */
 .cp-spinner {
   display: inline-block;
   width: 15px;

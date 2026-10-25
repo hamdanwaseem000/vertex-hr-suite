@@ -1,4 +1,4 @@
-﻿export const WEEKDAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+export const WEEKDAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
 export const WEEKDAY_LABELS = {
   sun: "Sunday",
@@ -12,7 +12,7 @@ export const WEEKDAY_LABELS = {
 
 // Brief-compliant defaults (09:00 start, 15m grace -> late after 09:15, half_day < 5h)
 export const DEFAULT_COMPANY_SETTINGS = {
-  companyName: "VertexHR Cloud Systems",
+  companyName: "VertexHR Technologies",
   officeStartTime: "09:00",
   officeEndTime: "18:00",
   graceMinutes: 15,
@@ -67,7 +67,7 @@ export function parseDateValue(val) {
 
 export function formatTime12(date) {
   const parsedDate = parseDateValue(date);
-  if (!parsedDate) return "â€”";
+  if (!parsedDate) return "-";
   return parsedDate.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
@@ -728,4 +728,3 @@ export function isValidDob(value, minAge = 16) {
 
   return age >= minAge && age <= 90;
 }
-

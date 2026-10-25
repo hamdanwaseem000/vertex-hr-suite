@@ -2,7 +2,7 @@
 
 * { box-sizing: border-box; }
 
-/* ── VertexHR Emerald-Ocean Layout Shell ── */
+/*  VertexHR Emerald-Ocean Layout Shell  */
 .home-layout {
   display: flex;
   height: 100vh;
@@ -28,7 +28,7 @@
   }
 }
 
-/* ── Floating Glassmorphic Sidebar ── */
+/*  Floating Glassmorphic Sidebar  */
 .home-sidebar {
   width: 276px;
   background: linear-gradient(180deg, rgba(7, 30, 38, 0.92) 0%, rgba(4, 17, 22, 0.96) 100%);
@@ -156,7 +156,7 @@
   border-color: rgba(239, 68, 68, 0.35);
 }
 
-/* ── Main Area ── */
+/*  Main Area  */
 .home-main {
   flex: 1;
   padding: 28px 34px;

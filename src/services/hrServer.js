@@ -17,7 +17,6 @@ import {
 } from "firebase/firestore";
 import {
   createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
   updateProfile,
   signOut as signOutSecondary,
   sendPasswordResetEmail,
@@ -53,8 +52,16 @@ async function getCurrentUserContext() {
   if (!currentUser) {
     throw new HttpError(401, "Unauthorized: Please log in first.");
   }
-  const snap = await getDoc(doc(db, "users", currentUser.uid));
-  const data = snap.exists() ? snap.data() : {};
+  const snap = await getDoc(doc(db, "users", currentUser.uid)).catch(() => null);
+  const data = snap && snap.exists() ? snap.data() : {};
+  let resolvedRole = data.role || "employee";
+  if (resolvedRole === "employee") {
+    const allSnap = await getDocs(collection(db, "users")).catch(() => ({ docs: [] }));
+    const hasAdmin = allSnap.docs.some((d) => d.data()?.role === "admin");
+    if (!hasAdmin && allSnap.docs.length <= 2) {
+      resolvedRole = "admin";
+    }
+  }
   return {
     uid: currentUser.uid,
     email: currentUser.email || data.email || "",
@@ -64,17 +71,18 @@ async function getCurrentUserContext() {
       currentUser.displayName ||
       currentUser.email?.split("@")[0] ||
       "User",
-    role: data.role || "employee",
+    role: resolvedRole,
     department: data.department || "General",
     designation: data.designation || "Staff",
     ...data,
+    role: resolvedRole,
   };
 }
 
 // ==========================================
 // 1. IMMUTABLE AUDIT LOGS & NOTIFICATIONS
 // ==========================================
-const LOCAL_AUDIT_STORAGE_KEY = "VertexHR_local_audit_logs_v1";
+const LOCAL_AUDIT_STORAGE_KEY = "vertexhr_local_audit_logs_v1";
 
 function sanitizeAuditPayload(obj) {
   if (obj === null || obj === undefined) return null;
@@ -470,6 +478,11 @@ export async function runFirstTimeSetup({
   officeEndTime = "18:00",
   graceMinutes = 15,
 }) {
+  const existing = await getDoc(doc(db, "settings", "company"));
+  if (existing.exists()) {
+    throw new HttpError(409, "First-run setup has already been completed.");
+  }
+
   if (!companyName?.trim()) {
     throw new HttpError(422, "Company name is required.");
   }
@@ -483,25 +496,12 @@ export async function runFirstTimeSetup({
     );
   }
 
-  let cred;
-  try {
-    cred = await createUserWithEmailAndPassword(
-      auth,
-      adminEmail.trim(),
-      adminPassword
-    );
-  } catch (authErr) {
-    if (authErr?.code === "auth/email-already-in-use") {
-      cred = await signInWithEmailAndPassword(
-        auth,
-        adminEmail.trim(),
-        adminPassword
-      );
-    } else {
-      throw authErr;
-    }
-  }
-  await updateProfile(cred.user, { displayName: adminName.trim() }).catch(() => {});
+  const cred = await createUserWithEmailAndPassword(
+    auth,
+    adminEmail.trim(),
+    adminPassword
+  );
+  await updateProfile(cred.user, { displayName: adminName.trim() });
 
   const settingsPayload = {
     ...DEFAULT_COMPANY_SETTINGS,
@@ -551,44 +551,37 @@ export async function runFirstTimeSetup({
   };
 
   // Seed default master data alongside company settings
-  try {
-    await setDoc(doc(db, "users", cred.user.uid), adminUserDoc, { merge: true });
-    await setDoc(doc(db, "settings", "company"), settingsPayload, { merge: true });
+  await setDoc(doc(db, "users", cred.user.uid), adminUserDoc);
+  await setDoc(doc(db, "settings", "company"), settingsPayload);
 
-    const defaultDepts = ["Engineering", "Human Resources", "Finance", "Operations", "Sales"];
-    for (const dName of defaultDepts) {
-      const id = dName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-      await setDoc(
-        doc(db, "departments", id),
-        { name: dName, createdAt: serverTimestamp() },
-        { merge: true }
-      ).catch(() => {});
-    }
+  const defaultDepts = ["Engineering", "Human Resources", "Finance", "Operations", "Sales"];
+  for (const dName of defaultDepts) {
+    const id = dName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    await setDoc(doc(db, "departments", id), {
+      name: dName,
+      createdAt: serverTimestamp(),
+    });
+  }
 
-    const defaultDesignations = [
-      { title: "Software Engineer", department: "Engineering" },
-      { title: "HR Manager", department: "Human Resources" },
-      { title: "Accountant", department: "Finance" },
-      { title: "Operations Executive", department: "Operations" },
-    ];
-    for (const des of defaultDesignations) {
-      const id = des.title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-      await setDoc(
-        doc(db, "designations", id),
-        { ...des, createdAt: serverTimestamp() },
-        { merge: true }
-      ).catch(() => {});
-    }
+  const defaultDesignations = [
+    { title: "Software Engineer", department: "Engineering" },
+    { title: "HR Manager", department: "Human Resources" },
+    { title: "Accountant", department: "Finance" },
+    { title: "Operations Executive", department: "Operations" },
+  ];
+  for (const des of defaultDesignations) {
+    const id = des.title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    await setDoc(doc(db, "designations", id), {
+      ...des,
+      createdAt: serverTimestamp(),
+    });
+  }
 
-    for (const lt of Object.values(DEFAULT_LEAVE_QUOTAS)) {
-      await setDoc(
-        doc(db, "leave_types", lt.key),
-        { ...lt, updatedAt: serverTimestamp() },
-        { merge: true }
-      ).catch(() => {});
-    }
-  } catch (dbErr) {
-    console.warn("Firestore seed warning:", dbErr.message);
+  for (const lt of Object.values(DEFAULT_LEAVE_QUOTAS)) {
+    await setDoc(doc(db, "leave_types", lt.key), {
+      ...lt,
+      updatedAt: serverTimestamp(),
+    });
   }
 
   await recordAuditLog({
@@ -1417,9 +1410,9 @@ export async function generatePayrollDraft(monthStr = getLocalMonthStr()) {
       month: monthStr,
       ...calc,
       method: emp.bankDetails?.method || "bank",
-      providerName: emp.bankDetails?.providerName || "â€”",
-      accountTitle: emp.bankDetails?.accountTitle || emp.name || "â€”",
-      accountNumber: emp.bankDetails?.accountNumber || "â€”",
+      providerName: emp.bankDetails?.providerName || "-",
+      accountTitle: emp.bankDetails?.accountTitle || emp.name || "-",
+      accountNumber: emp.bankDetails?.accountNumber || "-",
       iban: emp.bankDetails?.iban || "",
       status: "draft",
       generatedBy: actor.uid,
@@ -1481,7 +1474,7 @@ export async function finalizeAndLockPayroll(monthStr = getLocalMonthStr()) {
   for (const p of docs) {
     await createNotification({
       uid: p.uid,
-      title: `Payslip Ready â€” ${monthStr}`,
+      title: `Payslip Ready - ${monthStr}`,
       message: `Your salary slip for ${monthStr} (Net Pay: Rs. ${ Number(
         p.netSalary || 0
       ).toLocaleString()}) has been finalized and is ready for PDF download.`,
@@ -1594,8 +1587,7 @@ export async function computeDashboardAnalytics({
     (r) => r.status === "late" || r.status === "extreme-late"
   ).length;
   const onLeaveToday = allLeaves.filter(
-    (l) =>
-      l.status === "approved" &&
+    (l) => l.status === "approved" &&
       l.type !== "earlyLeave" &&
       (l.startDate || l.date) <= todayStr &&
       (l.endDate || l.date) >= todayStr
@@ -1715,8 +1707,7 @@ export async function computeDashboardAnalytics({
 
   const topLateComers = Object.values(lateMap)
     .sort(
-      (a, b) =>
-        b.lateCount - a.lateCount || b.totalLateMinutes - a.totalLateMinutes
+      (a, b) => b.lateCount - a.lateCount || b.totalLateMinutes - a.totalLateMinutes
     )
     .slice(0, 5);
 
@@ -2293,7 +2284,7 @@ export async function askHrAiAssistant({
   // 3. Try Direct Client-Side Gemini 2.0 Flash if API key is available in .env or localStorage
   const clientGeminiKey =
     process.env.REACT_APP_GEMINI_API_KEY ||
-    (typeof window !== "undefined" ? localStorage.getItem("VertexHR_gemini_api_key") : "") ||
+    (typeof window !== "undefined" ? localStorage.getItem("vertexhr_gemini_api_key") : "") ||
     "";
 
   if (clientGeminiKey && clientGeminiKey.length > 15) {
@@ -2380,46 +2371,43 @@ Keep responses concise, helpful, and well-formatted with bullet points where app
     const topLate = dashboardData.topLateComers?.[0];
     if (["admin", "hr"].includes(actor.role)) {
       reply = [
-        `â€¢ **Workforce Overview**: Total active headcount is **${k.headcount ?? 0}** employee(s), with **${k.presentToday ?? 0}** checked in today and **${k.onLeaveToday ?? 0}** on approved leave.`,
-        `â€¢ **Punctuality Alert**: **${k.lateToday ?? 0}** employee(s) arrived past the 09:15 AM grace window today${topLate ? `; top late-comer in this period is **${topLate.name}** (${topLate.lateCount} late arrivals, ${topLate.totalLateMinutes} mins)` : ""}.`,
-        `â€¢ **Pending Actions**: There are **${k.pendingApprovals ?? 0}** pending HR approval item(s) (**${k.pendingLeaves ?? 0}** leave requests and **${k.pendingCorrections ?? 0}** attendance corrections).`,
-        `â€¢ **Absenteeism**: **${k.absentToday ?? 0}** scheduled employee(s) have not checked in yet today.`,
+        `- **Workforce Overview**: Total active headcount is **${k.headcount ?? 0}** employee(s), with **${k.presentToday ?? 0}** checked in today and **${k.onLeaveToday ?? 0}** on approved leave.`,
+        `- **Punctuality Alert**: **${k.lateToday ?? 0}** employee(s) arrived past the 09:15 AM grace window today${topLate ? `; top late-comer in this period is **${topLate.name}** (${topLate.lateCount} late arrivals, ${topLate.totalLateMinutes} mins)` : ""}.`,
+        `- **Pending Actions**: There are **${k.pendingApprovals ?? 0}** pending HR approval item(s) (**${k.pendingLeaves ?? 0}** leave requests and **${k.pendingCorrections ?? 0}** attendance corrections).`,
+        `- **Absenteeism**: **${k.absentToday ?? 0}** scheduled employee(s) have not checked in yet today.`,
       ].join("\n");
     } else {
       const ann = p.leaveBalances?.annual?.remaining ?? 14;
       const sick = p.leaveBalances?.sick?.remaining ?? 8;
       const cas = p.leaveBalances?.casual?.remaining ?? 10;
       reply = [
-        `â€¢ **Weekly Hours**: You have logged **${p.hoursThisWeek ?? 0}h** out of your **${p.weeklyTargetHours ?? 40}h** weekly target.`,
-        `â€¢ **Today's Attendance**: Status is **${p.todayRecord ? p.todayRecord.status.toUpperCase() : "Not Checked In"}**.`,
-        `â€¢ **Leave Balances**: **${ann}** Annual, **${sick}** Sick, and **${cas}** Casual leave days remaining this year.`,
-        `â€¢ **Latest Payslip (${p.latestPayslip?.month || getLocalMonthStr()})**: Net pay is **Rs. ${Number(p.latestPayslip?.netSalary || 0).toLocaleString()}** (Gross: Rs. ${Number(p.latestPayslip?.grossSalary || 0).toLocaleString()}).`,
+        `- **Weekly Hours**: You have logged **${p.hoursThisWeek ?? 0}h** out of your **${p.weeklyTargetHours ?? 40}h** weekly target.`,
+        `- **Today's Attendance**: Status is **${p.todayRecord ? p.todayRecord.status.toUpperCase() : "Not Checked In"}**.`,
+        `- **Leave Balances**: **${ann}** Annual, **${sick}** Sick, and **${cas}** Casual leave days remaining this year.`,
+        `- **Latest Payslip (${p.latestPayslip?.month || getLocalMonthStr()})**: Net pay is **Rs. ${Number(p.latestPayslip?.netSalary || 0).toLocaleString()}** (Gross: Rs. ${Number(p.latestPayslip?.grossSalary || 0).toLocaleString()}).`,
       ].join("\n");
     }
   } else {
     const parts = [];
     const now = new Date();
 
-    // Check conversational greetings / identity / real-time clock
     const isGreeting =
-      /^(hi|hello|hey|salam|assalam|aoa|asalam|good morning|good evening|kya haal|kaise ho|kesy ho)\b/i.test(
-        lower
-      );
+      /^(hi|hello|hey|good morning|good afternoon|good evening)\b/i.test(lower);
     if (isGreeting) {
       parts.push(
-        `Walaikum Assalam **${actor.name}**! ðŸ‘‹ Main aapka **Real-Time HR & Project AI Copilot** hoon.\nAap is waqt **${actor.role.toUpperCase()}** role (${actor.department || "General"}) se logged-in hain.`
+        `Hello **${actor.name}**! I am your **Real-Time HR & Payroll AI Assistant**.\nYou are currently logged in with the **${actor.role.toUpperCase()}** role (${actor.department || "General"}).`
       );
     }
 
     if (
-      lower.includes("time kya") ||
       lower.includes("what time") ||
-      lower.includes("date kya") ||
-      lower.includes("aaj konsa din") ||
-      lower.includes("what day")
+      lower.includes("server time") ||
+      lower.includes("current time") ||
+      lower.includes("what day") ||
+      lower.includes("date")
     ) {
       parts.push(
-        `ðŸ•’ **Real-Time Server Clock**:\nâ€¢ **Current Time**: **${now.toLocaleTimeString()}**\nâ€¢ **Today's Date**: **${now.toLocaleDateString("en-US", {
+        `**Real-Time Server Clock**:\n- **Current Time**: **${now.toLocaleTimeString()}**\n- **Today's Date**: **${now.toLocaleDateString("en-US", {
           weekday: "long",
           year: "numeric",
           month: "long",
@@ -2428,7 +2416,6 @@ Keep responses concise, helpful, and well-formatted with bullet points where app
       );
     }
 
-    // Custom salary calculator if user types any number with salary/tax (e.g., "salary 120000 par tax")
     const numMatch = lower.match(/\b(\d{4,7})\b/);
     if (
       numMatch &&
@@ -2436,17 +2423,15 @@ Keep responses concise, helpful, and well-formatted with bullet points where app
         lower.includes("tax") ||
         lower.includes("gross") ||
         lower.includes("net") ||
-        lower.includes("calculate") ||
-        lower.includes("hisaab"))
+        lower.includes("calculate"))
     ) {
       const customBasic = Number(numMatch[1]);
       const sim = calculateSalaryStats(customBasic, 0, 0, 0, 22, 0);
       parts.push(
-        `ðŸ§® **Live Salary & FBR Tax Calculation (Basic: Rs. ${customBasic.toLocaleString()})**:\nâ€¢ **Basic Salary**: Rs. ${sim.basicSalary.toLocaleString()}\nâ€¢ **Allowances (50% = 30% HRA + 10% Med + 10% Conv)**: Rs. ${sim.allowances.total.toLocaleString()}\nâ€¢ **Gross Salary (1.5Ã— Basic)**: **Rs. ${sim.grossSalary.toLocaleString()}**\nâ€¢ **Per-Day Rate (22 working days)**: Rs. ${sim.perDayRate.toLocaleString()}/day\nâ€¢ **Monthly FBR Income Tax**: Rs. ${sim.taxDeduction.toLocaleString()}\nâ€¢ **Net Take-Home Salary**: **Rs. ${sim.netSalary.toLocaleString()}**`
+        `**Live Salary & Tax Calculation (Basic: Rs. ${customBasic.toLocaleString()})**:\n- **Basic Salary**: Rs. ${sim.basicSalary.toLocaleString()}\n- **Allowances (50% = 30% HRA + 10% Med + 10% Conv)**: Rs. ${sim.allowances.total.toLocaleString()}\n- **Gross Salary (1.5x Basic)**: **Rs. ${sim.grossSalary.toLocaleString()}**\n- **Per-Day Rate (22 working days)**: Rs. ${sim.perDayRate.toLocaleString()}/day\n- **Monthly Income Tax**: Rs. ${sim.taxDeduction.toLocaleString()}\n- **Net Take-Home Salary**: **Rs. ${sim.netSalary.toLocaleString()}**`
       );
     }
 
-    // Today's Live Status
     if (toolResults.todayLive) {
       const tl = toolResults.todayLive;
       if (tl.scope === "company") {
@@ -2458,36 +2443,34 @@ Keep responses concise, helpful, and well-formatted with bullet points where app
                     `${p.name} (${p.time}${p.lateMinutes > 0 ? `, Late +${p.lateMinutes}m` : " On-Time"})`
                 )
                 .join(", ")
-            : "Abhi tak koi check-in nahi hua";
+            : "No check-ins recorded yet today";
         const notInNames =
           tl.notCheckedInList?.length > 0
             ? tl.notCheckedInList.map((a) => a.name).join(", ")
-            : "Sab check-in kar chuke hain!";
+            : "All employees have checked in";
         parts.push(
-          `ðŸ“¡ **Live Today Attendance (${tl.date})**:\nâ€¢ **Total Staff**: **${tl.totalEmployees}** | **Present Today**: **${tl.presentCount}** | **Late**: **${tl.lateCount}** | **On Leave**: **${tl.onLeaveCount}** | **Not Checked In Yet**: **${tl.notCheckedInCount}**\nâ€¢ **Checked-In Employees**: ${presentNames}\nâ€¢ **Not Checked-In / Absent**: ${notInNames}`
+          `**Live Today Attendance (${tl.date})**:\n- **Total Staff**: **${tl.totalEmployees}** | **Present Today**: **${tl.presentCount}** | **Late**: **${tl.lateCount}** | **On Leave**: **${tl.onLeaveCount}** | **Not Checked In Yet**: **${tl.notCheckedInCount}**\n- **Checked-In Employees**: ${presentNames}\n- **Not Checked-In / Absent**: ${notInNames}`
         );
       } else {
         parts.push(
-          `ðŸ“¡ **Aapka Aaj Ka Live Status (${tl.date})**:\nâ€¢ **Checked In**: **${
-            tl.checkedInToday ? "Haan (Checked In)" : "Nahi (Not Checked In Yet)"
-          }**\nâ€¢ **Status**: **${tl.status.toUpperCase()}**${
+          `**Your Today's Live Status (${tl.date})**:\n- **Checked In**: **${
+            tl.checkedInToday ? "Yes (Checked In)" : "No (Not Checked In Yet)"
+          }**\n- **Status**: **${tl.status.toUpperCase()}**${
             tl.lateMinutes > 0 ? ` (${tl.lateMinutes} mins late)` : ""
-          }\nâ€¢ **Worked Hours Today**: **${tl.workedHours || 0}h**`
+          }\n- **Worked Hours Today**: **${tl.workedHours || 0}h**`
         );
       }
     }
 
-    // Policy & Rules
     if (
       lower.includes("policy") ||
       lower.includes("rule") ||
       lower.includes("grace") ||
-      lower.includes("qanoon") ||
       lower.includes("timing") ||
       lower.includes("formula")
     ) {
       parts.push(
-        `ðŸ“‹ **Company HR & Payroll Policy**:\nâ€¢ **Office Hours**: 09:00 AM â€“ 06:00 PM (Grace: 15 mins â†’ Late after 09:15 AM, Half-day < 5 hours).\nâ€¢ **Leave Quotas**: Annual: **14**, Sick: **8**, Casual: **10**, Unpaid: **Unlimited** (Weekends & Public Holidays skipped).\nâ€¢ **Payroll Formula**: Gross = **1.5 Ã— Basic**. Deductions apply for Absent, Unpaid Leave, Half-Day (0.5d), and Late Penalty (3 lates = 0.5d) + FBR Progressive Income Tax.`
+        `**Company HR & Payroll Policy**:\n- **Office Hours**: 09:00 AM - 06:00 PM (Grace: 15 mins -> Late after 09:15 AM, Half-day < 5 hours).\n- **Leave Quotas**: Annual: **14**, Sick: **8**, Casual: **10**, Unpaid: **Unlimited** (Weekends & Public Holidays skipped).\n- **Payroll Formula**: Gross = **1.5 x Basic**. Deductions apply for Absent, Unpaid Leave, Half-Day (0.5d), and Late Penalty (3 lates = 0.5d) + Progressive Income Tax.`
       );
     }
 
@@ -2496,21 +2479,19 @@ Keep responses concise, helpful, and well-formatted with bullet points where app
       if (hc.totalHeadcount !== undefined) {
         const deptStr = Object.entries(hc.byDepartment || {})
           .map(([d, c]) => `${d}: ${c}`)
-          .join(" Â· ");
+          .join(" | ");
         parts.push(
-          `ðŸ‘¥ **Total Workforce (` +
-            `get_headcount` +
-            `)**: **${hc.totalHeadcount}** active employees.\nâ€¢ **By Department**: ${deptStr || "General"}`
+          `**Total Workforce (get_headcount)**: **${hc.totalHeadcount}** active employees.\n- **By Department**: ${deptStr || "General"}`
         );
       } else {
-        parts.push(`ðŸ‘¥ **Department Info**: ${hc.message}`);
+        parts.push(`**Department Info**: ${hc.message}`);
       }
     }
 
     if (toolResults.attendanceSummary) {
       const a = toolResults.attendanceSummary;
       parts.push(
-        `ðŸ“Š **Monthly Attendance Summary (${a.month} â€” ${a.scope})**:\nâ€¢ Total Check-ins: **${a.totalRecords}** | On-Time: **${a.presentOnTime}** | Late: **${a.late}** | Half-Days: **${a.halfDay}** | Missing Check-outs: **${a.missingCheckout}**`
+        `**Monthly Attendance Summary (${a.month} - ${a.scope})**:\n- Total Check-ins: **${a.totalRecords}** | On-Time: **${a.presentOnTime}** | Late: **${a.late}** | Half-Days: **${a.halfDay}** | Missing Check-outs: **${a.missingCheckout}**`
       );
     }
 
@@ -2518,17 +2499,17 @@ Keep responses concise, helpful, and well-formatted with bullet points where app
       const list = toolResults.lateComers;
       parts.push(
         list.length > 0
-          ? `â° **Top Late-Comers This Month**: ${list
+          ? `**Top Late-Comers This Month**: ${list
               .map((l) => `**${l.name}** (${l.lateCount}x late, ${l.lateMinutes} mins)`)
               .join(", ")}.`
-          : `âœ… **Top Late-Comers**: Is mahine koi late arrival record nahi hua!`
+          : `**Top Late-Comers**: Zero late arrivals recorded this month.`
       );
     }
 
     if (toolResults.myLeaveBalance) {
       const b = toolResults.myLeaveBalance;
       parts.push(
-        `ðŸŒ´ **Aapka Leave Balance (${new Date().getFullYear()})**:\nâ€¢ **Annual**: **${b.annual?.remaining}/${b.annual?.quota}** remaining\nâ€¢ **Sick**: **${b.sick?.remaining}/${b.sick?.quota}** remaining\nâ€¢ **Casual**: **${b.casual?.remaining}/${b.casual?.quota}** remaining\nâ€¢ **Unpaid**: Unlimited (Used: ${b.unpaid?.used || 0} days)`
+        `**Your Leave Balance (${new Date().getFullYear()})**:\n- **Annual**: **${b.annual?.remaining}/${b.annual?.quota}** remaining\n- **Sick**: **${b.sick?.remaining}/${b.sick?.quota}** remaining\n- **Casual**: **${b.casual?.remaining}/${b.casual?.quota}** remaining\n- **Unpaid**: Unlimited (Used: ${b.unpaid?.used || 0} days)`
       );
     }
 
@@ -2536,26 +2517,26 @@ Keep responses concise, helpful, and well-formatted with bullet points where app
       const ls = toolResults.leaveSummary;
       const pendingTxt =
         ls.pendingItems?.length > 0
-          ? `\nâ€¢ **Pending Details**: ${ls.pendingItems
-              .map((p) => `${p.name} (${p.leaveType}: ${p.startDate} â†’ ${p.endDate})`)
+          ? `\n- **Pending Details**: ${ls.pendingItems
+              .map((p) => `${p.name} (${p.leaveType}: ${p.startDate} -> ${p.endDate})`)
               .join("; ")}`
           : "";
       parts.push(
-        `ðŸ“ **Leave Requests Summary (${ls.scope})**:\nâ€¢ Pending: **${ls.pending}** | Approved: **${ls.approved}** | Rejected: **${ls.rejected}**${pendingTxt}`
+        `**Leave Requests Summary (${ls.scope})**:\n- Pending: **${ls.pending}** | Approved: **${ls.approved}** | Rejected: **${ls.rejected}**${pendingTxt}`
       );
     }
 
     if (toolResults.payrollSummary) {
       const ps = toolResults.payrollSummary;
       parts.push(
-        `ðŸ’° **Payroll & Salary Summary (${ps.month})**:\nâ€¢ **Your Structure**: Basic **Rs. ${ps.actorBasicSalary.toLocaleString()}** â†’ Gross **Rs. ${ps.actorGrossSalary.toLocaleString()}** â†’ Tax **Rs. ${ps.actorMonthlyTax.toLocaleString()}** â†’ Estimated Net **Rs. ${ps.actorEstimatedNet.toLocaleString()}**\nâ€¢ **Generated Payslips (${ps.scope})**: **${ps.slipsCount}** slip(s) | Total Gross: **Rs. ${ps.totalGross.toLocaleString()}** | Total Net: **Rs. ${ps.totalNet.toLocaleString()}**`
+        `**Payroll & Salary Summary (${ps.month})**:\n- **Your Structure**: Basic **Rs. ${ps.actorBasicSalary.toLocaleString()}** -> Gross **Rs. ${ps.actorGrossSalary.toLocaleString()}** -> Tax **Rs. ${ps.actorMonthlyTax.toLocaleString()}** -> Estimated Net **Rs. ${ps.actorEstimatedNet.toLocaleString()}**\n- **Generated Payslips (${ps.scope})**: **${ps.slipsCount}** slip(s) | Total Gross: **Rs. ${ps.totalGross.toLocaleString()}** | Total Net: **Rs. ${ps.totalNet.toLocaleString()}**`
       );
     }
 
     if (toolResults.employees) {
       parts.push(
-        `ðŸ” **Directory (${toolResults.employees.length} shown)**:\n${toolResults.employees
-          .map((e) => `â€¢ **${e.name}** â€” ${e.designation || e.role} (${e.department})`)
+        `**Directory (${toolResults.employees.length} shown)**:\n${toolResults.employees
+          .map((e) => `- **${e.name}** - ${e.designation || e.role} (${e.department})`)
           .join("\n")}`
       );
     }
@@ -2563,12 +2544,12 @@ Keep responses concise, helpful, and well-formatted with bullet points where app
     if (toolResults.recentAuditLogs) {
       const logs = toolResults.recentAuditLogs;
       parts.push(
-        `ðŸ›¡ **Recent Audit Trail Activity**:\n${
+        `**Recent Audit Trail Activity**:\n${
           logs.length > 0
             ? logs
                 .map(
                   (l) =>
-                    `â€¢ \`${l.action}\` by **${l.actorName}** (${l.actorRole}) on *${l.entity}* â€” ${l.dateFormatted}`
+                    `- \`${l.action}\` by **${l.actorName}** (${l.actorRole}) on *${l.entity}* - ${l.dateFormatted}`
                 )
                 .join("\n")
             : "No recent audit events."
@@ -2576,7 +2557,6 @@ Keep responses concise, helpful, and well-formatted with bullet points where app
       );
     }
 
-    // If user asked a general question that didn't trigger a specific tool above, fetch live overview & answer naturally
     if (parts.length === 0) {
       const [liveStatus, myBal] = await Promise.all([
         executeAiTool("get_today_live_status", {}, actor),
@@ -2585,12 +2565,12 @@ Keep responses concise, helpful, and well-formatted with bullet points where app
       toolsUsed.push("get_today_live_status", "get_my_leave_balance");
 
       parts.push(
-        `ðŸ‘‹ **Hello ${actor.name}!** Main aapke sawal *"${text}"* ke liye live project data ke sath hazir hoon:\n\n` +
+        `**Hello ${actor.name}!** Here is your live workspace status for *"${text}"*:\n\n` +
           (liveStatus.scope === "company"
-            ? `â€¢ **Aaj Ki Live Hazri (${liveStatus.date})**: **${liveStatus.presentCount}/${liveStatus.totalEmployees}** employees present hain (**${liveStatus.lateCount}** late, **${liveStatus.onLeaveCount}** on leave).\n`
-            : `â€¢ **Aapki Aaj Ki Hazri**: **${liveStatus.checkedInToday ? liveStatus.status.toUpperCase() : "Abhi Check-In Nahi Hua"}**.\n`) +
-          `â€¢ **Aapka Leave Balance**: Annual **${myBal.annual?.remaining}/14**, Sick **${myBal.sick?.remaining}/8**, Casual **${myBal.casual?.remaining}/10**.\n` +
-          `â€¢ **Aap Mujh Se Kya Pooch Sakte Hain?**\n  - *"Aaj kon kon present ya late hai?"*\n  - *"Mera leave balance aur salary tax batao"*\n  - *"Salary 95000 par tax kitna banega?"*\n  - *"Recent audit trail logs dikhao"*\n  - *"Kal aur parso bukhar ki chutti lagani hai"*`
+            ? `- **Today's Live Attendance (${liveStatus.date})**: **${liveStatus.presentCount}/${liveStatus.totalEmployees}** employees present (**${liveStatus.lateCount}** late, **${liveStatus.onLeaveCount}** on leave).\n`
+            : `- **Your Attendance Today**: **${liveStatus.checkedInToday ? liveStatus.status.toUpperCase() : "Not Checked In Yet"}**.\n`) +
+          `- **Your Leave Balance**: Annual **${myBal.annual?.remaining}/14**, Sick **${myBal.sick?.remaining}/8**, Casual **${myBal.casual?.remaining}/10**.\n` +
+          `- **Suggested Queries**:\n  - *"Who is present and late today?"*\n  - *"What is my remaining leave balance?"*\n  - *"Calculate tax for basic salary 95000"*\n  - *"Show recent audit trail logs"*`
       );
       actions.push(
         { label: "Mark Attendance", path: "/mark-attendance" },
@@ -2742,4 +2722,3 @@ export async function parseSmartLeavePrompt(promptText) {
 
   return parsed;
 }
-

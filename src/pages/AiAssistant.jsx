@@ -1,14 +1,14 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { askHrAiAssistant } from "../services/hrServer";
 
 const SAMPLE_PROMPTS = [
-  "Aaj kon kon present aur late hai?",
-  "Mera leave balance kitna baaqi hai?",
+  "Who is present and late today?",
+  "What is my remaining leave balance?",
   "What is the company grace period, half-day, and payroll tax policy?",
-  "Salary 95000 par tax aur net salary kitni hogi?",
+  "Calculate tax and net salary for basic salary 95000",
   "Show payroll summary for this month",
-  "Recent audit trail logs dikhao",
+  "Show recent audit trail logs",
 ];
 
 function AiAssistant() {
@@ -16,7 +16,7 @@ function AiAssistant() {
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      text: "Assalam-o-Alaikum! I am your **VertexHR HR & Payroll AI Assistant**.\n\nI can answer questions using live server tools (`get_headcount`, `get_attendance_summary`, `get_late_comers`, `get_leave_summary`, `get_my_leave_balance`, `get_payroll_summary`, `search_employees`) and company policy rules in **English** or **Roman Urdu**.",
+      text: "Welcome! I am your **VertexHR HR & Payroll AI Assistant**.\n\nI can answer questions using live server tools (`get_headcount`, `get_attendance_summary`, `get_late_comers`, `get_leave_summary`, `get_my_leave_balance`, `get_payroll_summary`, `search_employees`) and company policy rules.",
       toolsUsed: [],
       aiGenerated: true,
     },
@@ -49,7 +49,7 @@ function AiAssistant() {
         ...prev,
         {
           role: "assistant",
-          text: `âš ï¸ Error: ${err.message || "AI request failed."}`,
+          text: `Error: ${err.message || "AI request failed."}`,
           toolsUsed: [],
           aiGenerated: true,
         },
@@ -63,7 +63,7 @@ function AiAssistant() {
     <div
       style={{
         minHeight: "100vh",
-        background: "#09090b",
+        background: "#041116",
         color: "#f8fafc",
         display: "flex",
         flexDirection: "column",
@@ -76,7 +76,7 @@ function AiAssistant() {
           alignItems: "center",
           padding: "18px 28px",
           borderBottom: "1px solid rgba(255,255,255,0.08)",
-          background: "rgba(15, 23, 42, 0.9)",
+          background: "rgba(7, 30, 38, 0.9)",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -85,21 +85,19 @@ function AiAssistant() {
               width: "40px",
               height: "40px",
               borderRadius: "12px",
-              background: "linear-gradient(135deg, #10b981, #0d9488)",
+              background: "linear-gradient(135deg, #10b981, #0284c7)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "19px",
+              fontSize: "14px",
+              fontWeight: 800,
             }}
-          >
-            âœ¨
+          > AI
           </div>
           <div>
-            <h1 style={{ fontSize: "18px", fontWeight: 700, margin: 0 }}>
-              VertexHR AI Assistant (Gemini Tool-Calling)
+            <h1 style={{ fontSize: "18px", fontWeight: 700, margin: 0 }}> VertexHR AI Assistant (Gemini Tool-Calling)
             </h1>
-            <span style={{ fontSize: "12px", color: "#34d399" }}>
-              Role-Scoped HR Tools Â· Policy Q&A Â· Roman Urdu & English Â· 20 req/hr Guardrail
+            <span style={{ fontSize: "12px", color: "#2dd4bf" }}> Role-Scoped HR Tools | Policy Q&A | 20 req/hr Guardrail
             </span>
           </div>
         </div>
@@ -113,8 +111,7 @@ function AiAssistant() {
             color: "#e2e8f0",
             cursor: "pointer",
           }}
-        >
-          â† Back to Dashboard
+        > Back to Dashboard
         </button>
       </header>
 
@@ -130,7 +127,6 @@ function AiAssistant() {
           gap: "16px",
         }}
       >
-        {/* Quick Prompts */}
         <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
           {SAMPLE_PROMPTS.map((p) => (
             <button
@@ -140,9 +136,9 @@ function AiAssistant() {
               style={{
                 padding: "7px 12px",
                 borderRadius: "999px",
-                border: "1px solid rgba(16, 185, 129, 0.35)",
-                background: "rgba(5, 150, 105, 0.12)",
-                color: "#a7f3d0",
+                border: "1px solid rgba(20, 184, 166, 0.35)",
+                background: "rgba(13, 148, 136, 0.12)",
+                color: "#99f6e4",
                 fontSize: "12px",
                 cursor: "pointer",
               }}
@@ -152,11 +148,10 @@ function AiAssistant() {
           ))}
         </div>
 
-        {/* Chat Messages Window */}
         <div
           style={{
             flex: 1,
-            background: "rgba(15, 23, 42, 0.78)",
+            background: "rgba(7, 30, 38, 0.78)",
             border: "1px solid rgba(255,255,255,0.08)",
             borderRadius: "16px",
             padding: "20px",
@@ -175,7 +170,7 @@ function AiAssistant() {
                 maxWidth: "82%",
                 background:
                   m.role === "user"
-                    ? "linear-gradient(135deg, #059669, #0d9488)"
+                    ? "linear-gradient(135deg, #0d9488, #0284c7)"
                     : "rgba(30, 41, 59, 0.9)",
                 border:
                   m.role === "user"
@@ -203,12 +198,11 @@ function AiAssistant() {
                       fontSize: "10.5px",
                       padding: "2px 8px",
                       borderRadius: "999px",
-                      background: "rgba(16, 185, 129, 0.25)",
-                      color: "#6ee7b7",
+                      background: "rgba(20, 184, 166, 0.25)",
+                      color: "#5eead4",
                       fontWeight: 700,
                     }}
-                  >
-                    AI-generated
+                  > AI-generated
                   </span>
                   {m.toolsUsed?.map((t) => (
                     <span
@@ -222,7 +216,7 @@ function AiAssistant() {
                         fontFamily: "monospace",
                       }}
                     >
-                      ðŸ›  {t}()
+                      {t}()
                     </span>
                   ))}
                 </div>
@@ -231,13 +225,11 @@ function AiAssistant() {
             </div>
           ))}
           {loading && (
-            <div style={{ color: "#34d399", fontSize: "13px" }}>
-              âœ¨ Running HR tools & generating response (15s timeout active)...
+            <div style={{ color: "#2dd4bf", fontSize: "13px" }}> Running HR tools and generating response (15s timeout active)...
             </div>
           )}
         </div>
 
-        {/* Input Box */}
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -249,13 +241,13 @@ function AiAssistant() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask in English or Roman Urdu (e.g. 'Mera leave balance kya hai?' or 'Show late comers')..."
+            placeholder="Ask about attendance, leave balances, payroll, or company policies..."
             style={{
               flex: 1,
               padding: "12px 16px",
               borderRadius: "12px",
               border: "1px solid rgba(255,255,255,0.16)",
-              background: "rgba(15, 23, 42, 0.9)",
+              background: "rgba(7, 30, 38, 0.9)",
               color: "#fff",
               fontSize: "14px",
             }}
@@ -267,13 +259,12 @@ function AiAssistant() {
               padding: "12px 24px",
               borderRadius: "12px",
               border: "none",
-              background: "linear-gradient(135deg, #059669, #0d9488)",
+              background: "linear-gradient(135deg, #0d9488, #0284c7)",
               color: "#fff",
               fontWeight: 700,
               cursor: "pointer",
             }}
-          >
-            Send
+          > Send
           </button>
         </form>
       </div>
@@ -282,4 +273,3 @@ function AiAssistant() {
 }
 
 export default AiAssistant;
-

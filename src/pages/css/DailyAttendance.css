@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 * { box-sizing: border-box; }
 
@@ -6,11 +6,11 @@
   min-height: 100vh;
   background-color: #041116;
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(13, 148, 136, 0.22) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(99, 60, 255, 0.22) 0%, transparent 70%),
     repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.03) 39px, rgba(255,255,255,0.03) 40px),
     repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.03) 39px, rgba(255,255,255,0.03) 40px);
   padding: 40px 20px 70px;
-  color: #ecfeff;
+  color: #f0eeff;
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
@@ -54,10 +54,10 @@
   font-size: 10.5px;
   padding: 3px 10px;
   border-radius: 100px;
-  background: rgba(45, 212, 191, 0.12);
-  color: #99f6e4;
+  background: rgba(167, 139, 250, 0.12);
+  color: #c4b8f0;
   font-weight: 600;
-  border: 1px solid rgba(45, 212, 191, 0.25);
+  border: 1px solid rgba(167, 139, 250, 0.25);
 }
 
 .daily-back-btn {
@@ -66,7 +66,7 @@
   gap: 6px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.04);
-  color: #99f6e4;
+  color: #b8b3d0;
   font-size: 13px;
   font-weight: 500;
   padding: 9px 16px;
@@ -77,9 +77,9 @@
 }
 
 .daily-back-btn:hover {
-  border-color: rgba(45, 212, 191, 0.4);
+  border-color: rgba(167, 139, 250, 0.4);
   color: #fff;
-  background: rgba(45, 212, 191, 0.1);
+  background: rgba(167, 139, 250, 0.1);
 }
 
 /* Hero */
@@ -94,7 +94,7 @@
   border-radius: 20px;
   padding: 34px 36px;
   overflow: hidden;
-  box-shadow: 0 0 0 1px rgba(13, 148, 136, 0.15), 0 30px 70px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255,255,255,0.07);
+  box-shadow: 0 0 0 1px rgba(99, 60, 255, 0.15), 0 30px 70px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255,255,255,0.07);
 }
 
 .daily-hero-glow {
@@ -122,7 +122,7 @@
   background-clip: text;
 }
 
-.daily-hero-sub { position: relative; font-size: 14px; font-weight: 300; color: rgba(204, 251, 241, 0.55); margin: 0; }
+.daily-hero-sub { position: relative; font-size: 14px; font-weight: 300; color: rgba(240, 238, 255, 0.55); margin: 0; }
 
 /* Body */
 .daily-body { max-width: 820px; margin: 0 auto; }
@@ -134,13 +134,13 @@
   align-items: center;
   gap: 14px;
   background: rgba(5, 150, 105, 0.08);
-  border: 1px solid rgba(45, 212, 191, 0.28);
+  border: 1px solid rgba(167, 139, 250, 0.28);
   border-radius: 14px;
   padding: 16px 20px;
   margin-bottom: 18px;
 }
 
-.daily-me-label { margin: 0 0 4px; font-size: 11.5px; color: rgba(204, 251, 241, 0.5); font-weight: 600; }
+.daily-me-label { margin: 0 0 4px; font-size: 11.5px; color: rgba(240, 238, 255, 0.5); font-weight: 600; }
 .daily-me-status { margin: 0; font-size: 15px; font-weight: 700; }
 
 /* Controls */
@@ -157,7 +157,7 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 9px;
   background: rgba(255, 255, 255, 0.04);
-  color: #ecfeff;
+  color: #f0eeff;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 13px;
   color-scheme: dark;
@@ -169,7 +169,7 @@
   padding: 8px 14px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #99f6e4;
+  color: #c4b8f0;
   border-radius: 8px;
   cursor: pointer;
   font-family: 'Plus Jakarta Sans', sans-serif;
@@ -179,12 +179,12 @@
 }
 
 .daily-export-bar button:hover {
-  background: rgba(45, 212, 191, 0.1);
-  border-color: rgba(45, 212, 191, 0.4);
+  background: rgba(167, 139, 250, 0.1);
+  border-color: rgba(167, 139, 250, 0.4);
   color: #fff;
 }
 
-.daily-hint { font-size: 12.5px; color: rgba(204, 251, 241, 0.45); margin: 0 0 12px; }
+.daily-hint { font-size: 12.5px; color: rgba(240, 238, 255, 0.45); margin: 0 0 12px; }
 .daily-error { color: #f87171; font-size: 13px; margin: 0 0 12px; }
 
 /* Check-in buttons */
@@ -223,10 +223,10 @@
   -webkit-backdrop-filter: blur(12px);
   border-radius: 16px;
   padding: 10px 20px;
-  box-shadow: 0 0 0 1px rgba(13, 148, 136, 0.1), 0 20px 48px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 0 0 1px rgba(99, 60, 255, 0.1), 0 20px 48px rgba(0, 0, 0, 0.45);
 }
 
-.daily-loading { color: rgba(204, 251, 241, 0.5); font-size: 13px; padding: 16px 0; }
+.daily-loading { color: rgba(240, 238, 255, 0.5); font-size: 13px; padding: 16px 0; }
 .daily-scroll { overflow-x: auto; }
 
 .daily-table {
@@ -242,7 +242,7 @@
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.3px;
-  color: rgba(204, 251, 241, 0.4);
+  color: rgba(240, 238, 255, 0.4);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   white-space: nowrap;
 }
@@ -250,7 +250,7 @@
 .daily-table td {
   padding: 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  color: #ecfeff;
+  color: #f0eeff;
   vertical-align: middle;
 }
 
@@ -265,9 +265,9 @@
 .daily-s-late { color: #fbbf24; font-weight: 600; }
 .daily-s-extreme { color: #f87171; font-weight: 700; }
 .daily-s-absent { color: #ef4444; font-weight: 600; }
-.daily-s-pending { color: rgba(204, 251, 241, 0.6); font-weight: 600; }
+.daily-s-pending { color: rgba(240, 238, 255, 0.6); font-weight: 600; }
 .daily-s-leave { color: #60a5fa; font-weight: 600; }
-.daily-s-off { color: rgba(204, 251, 241, 0.35); font-weight: 500; }
+.daily-s-off { color: rgba(240, 238, 255, 0.35); font-weight: 500; }
 
 @media (max-width: 480px) {
   .daily-hero { padding: 26px 22px; border-radius: 18px; }

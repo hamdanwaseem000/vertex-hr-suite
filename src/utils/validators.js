@@ -1,4 +1,4 @@
-﻿export const digitsOnly = (s = "") => String(s).replace(/\D/g, "");
+export const digitsOnly = (s = "") => String(s).replace(/\D/g, "");
 
 // Typing ke dauran auto-format: XXXXX-XXXXXXX-X
 export function formatCnic(value) {

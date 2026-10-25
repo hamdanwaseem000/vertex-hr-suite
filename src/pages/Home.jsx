@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   collection,
   query,
@@ -98,15 +98,25 @@ function Home() {
       const uid = auth.currentUser?.uid;
       if (!uid) return;
       const snap = await getDoc(doc(db, "users", uid));
+      const allUsersSnap = await getDocs(collection(db, "users")).catch(() => ({ docs: [] }));
+      const hasAnyAdmin = allUsersSnap.docs.some((d) => d.data()?.role === "admin");
+
       if (snap.exists()) {
-        setUserData({ uid, ...snap.data() });
+        const data = snap.data();
+        if (!hasAnyAdmin && allUsersSnap.docs.length <= 2) {
+          await updateDoc(doc(db, "users", uid), { role: "admin", profileComplete: true }).catch(() => {});
+          setUserData({ uid, ...data, role: "admin" });
+        } else {
+          setUserData({ uid, ...data });
+        }
       } else {
+        const fallbackRole = !hasAnyAdmin ? "admin" : "employee";
         setUserData({
           uid,
-          name: auth.currentUser.displayName || "Employee",
+          name: auth.currentUser.displayName || "Admin User",
           email: auth.currentUser.email,
-          role: "employee",
-          department: "General",
+          role: fallbackRole,
+          department: "Management",
         });
       }
 
@@ -196,7 +206,7 @@ function Home() {
     try {
       await selfCheckIn();
       await loadAnalytics();
-      setActionAlert("âœ“ Checked in! Official server timestamp recorded.");
+      setActionAlert(" Checked in! Official server timestamp recorded.");
     } catch (err) {
       setActionAlert(err.message);
     } finally {
@@ -210,7 +220,7 @@ function Home() {
     try {
       const res = await selfCheckOut();
       await loadAnalytics();
-      setActionAlert(`âœ“ Checked out! Total worked hours: ${res.workedHours}h.`);
+      setActionAlert(` Checked out! Total worked hours: ${res.workedHours}h.`);
     } catch (err) {
       setActionAlert(err.message);
     } finally {
@@ -258,8 +268,7 @@ function Home() {
         read: true,
         readAt: serverTimestamp(),
       });
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === notif.id ? { ...n, read: true } : n))
+      setNotifications((prev) => prev.map((n) => (n.id === notif.id ? { ...n, read: true } : n))
       );
     }
     if (notif.link) navigate(notif.link);
@@ -276,7 +285,7 @@ function Home() {
         className="home-layout"
         style={{ justifyContent: "center", alignItems: "center" }}
       >
-        <p style={{ color: "rgba(204, 251, 241, 0.5)" }}>
+        <p style={{ color: "rgba(240, 238, 255, 0.5)" }}>
           {loadError || "Loading dashboard..."}
         </p>
       </div>
@@ -307,7 +316,7 @@ function Home() {
 
   return (
     <div className="home-layout">
-      {/* â”€â”€ SIDEBAR (3 Roles: Admin, HR, Employee) â”€â”€ */}
+      {/*  SIDEBAR (3 Roles: Admin, HR, Employee)  */}
       <aside className="home-sidebar">
         <div className="home-logo">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -318,34 +327,29 @@ function Home() {
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-          </svg>
-          VertexHR
+          </svg> VertexHR
         </div>
         <nav className="home-nav">
           <p className="home-nav-heading">Employee Portal</p>
           <button
             className="home-nav-btn active"
             onClick={() => navigate("/")}
-          >
-            Dashboard
+          > Dashboard
           </button>
           <button
             className="home-nav-btn"
             onClick={() => navigate("/mark-attendance")}
-          >
-            Self Check-In / Out
+          > Self Check-In / Out
           </button>
           <button
             className="home-nav-btn"
             onClick={() => navigate("/my-attendance")}
-          >
-            My Attendance
+          > My Attendance
           </button>
           <button
             className="home-nav-btn"
             onClick={() => navigate("/leave-request")}
-          >
-            Leaves & Smart Leave
+          > Leaves & Smart Leave
           </button>
           <button
             className="home-nav-btn"
@@ -356,14 +360,12 @@ function Home() {
           <button
             className="home-nav-btn"
             onClick={() => navigate("/ai-assistant")}
-          >
-            âœ¨ AI HR Assistant
+          > AI HR Assistant
           </button>
           <button
             className="home-nav-btn"
             onClick={() => navigate("/complete-profile")}
-          >
-            My Contact Profile
+          > My Contact Profile
           </button>
 
           {isPrivileged && (
@@ -374,38 +376,32 @@ function Home() {
               <button
                 className="home-nav-btn"
                 onClick={() => navigate("/company-settings")}
-              >
-                Onboarding & Settings
+              > Onboarding & Settings
               </button>
               <button
                 className="home-nav-btn"
                 onClick={() => navigate("/daily-attendance")}
-              >
-                Daily Sheet & Corrections
+              > Daily Sheet & Corrections
               </button>
               <button
                 className="home-nav-btn"
                 onClick={() => navigate("/employee-attendance")}
-              >
-                All Attendance
+              > All Attendance
               </button>
               <button
                 className="home-nav-btn"
                 onClick={() => navigate("/manage-leaves")}
-              >
-                Leave Approvals
+              > Leave Approvals
               </button>
               <button
                 className="home-nav-btn"
                 onClick={() => navigate("/manage-schedule")}
-              >
-                Manage Schedules
+              > Manage Schedules
               </button>
               <button
                 className="home-nav-btn"
                 onClick={() => navigate("/audit-logs")}
-              >
-                Audit Trail
+              > Audit Trail
               </button>
             </>
           )}
@@ -417,7 +413,7 @@ function Home() {
             <div className="home-profile-text">
               <span className="home-profile-name">{userData.name}</span>
               <span className="home-profile-role">
-                {role.toUpperCase()} Â· {userData.department || "General"}
+                {role.toUpperCase()} | {userData.department || "General"}
               </span>
             </div>
           </div>
@@ -430,13 +426,12 @@ function Home() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
-            </svg>
-            Log out
+            </svg> Log out
           </button>
         </div>
       </aside>
 
-      {/* â”€â”€ MAIN CONTENT â”€â”€ */}
+      {/*  MAIN CONTENT  */}
       <main className="home-main">
         <header className="home-header">
           <div>
@@ -444,7 +439,7 @@ function Home() {
               {getGreeting()}, {userData.name?.split(" ")[0] || "User"}!
             </h1>
             <p>
-              {dateLabel} Â· Role:{" "}
+              {dateLabel} | Role:{" "}
               <strong style={{ color: "#2dd4bf" }}>{role.toUpperCase()}</strong>
             </p>
           </div>
@@ -465,7 +460,7 @@ function Home() {
                 cursor: "pointer",
               }}
             >
-              {aiSummarizing ? "Summarizing..." : "âœ¨ Summarize Dashboard (AI)"}
+              {aiSummarizing ? "Summarizing..." : " Summarize Dashboard (AI)"}
             </button>
 
             <div style={{ position: "relative" }}>
@@ -481,8 +476,7 @@ function Home() {
                   cursor: "pointer",
                   fontSize: "13px",
                 }}
-              >
-                ðŸ”” Alerts {unreadNotifs > 0 && `(${unreadNotifs})`}
+              > Alerts {unreadNotifs > 0 && `(${unreadNotifs})`}
               </button>
 
               {showNotifs && (
@@ -494,7 +488,7 @@ function Home() {
                     width: "320px",
                     maxHeight: "360px",
                     overflowY: "auto",
-                    background: "#071e26",
+                    background: "#0f172a",
                     border: "1px solid rgba(255,255,255,0.16)",
                     borderRadius: "14px",
                     padding: "12px",
@@ -502,12 +496,10 @@ function Home() {
                     boxShadow: "0 20px 40px rgba(0,0,0,0.6)",
                   }}
                 >
-                  <div style={{ fontWeight: 700, fontSize: "13px", marginBottom: "8px" }}>
-                    In-App Notifications
+                  <div style={{ fontWeight: 700, fontSize: "13px", marginBottom: "8px" }}> In-App Notifications
                   </div>
                   {notifications.length === 0 ? (
-                    <p style={{ fontSize: "12px", color: "#94a3b8", margin: 0 }}>
-                      No notifications yet.
+                    <p style={{ fontSize: "12px", color: "#94a3b8", margin: 0 }}> No notifications yet.
                     </p>
                   ) : (
                     notifications.map((n) => (
@@ -545,7 +537,7 @@ function Home() {
             style={{
               background: "rgba(13, 148, 136, 0.18)",
               border: "1px solid rgba(13, 148, 136, 0.4)",
-              color: "#ccfbf1",
+              color: "#99f6e4",
               padding: "11px 16px",
               borderRadius: "12px",
               marginBottom: "18px",
@@ -576,8 +568,7 @@ function Home() {
                 marginBottom: "8px",
               }}
             >
-              <strong style={{ color: "#ccfbf1", fontSize: "14px" }}>
-                âœ¨ Executive Summary (Server Metrics)
+              <strong style={{ color: "#99f6e4", fontSize: "14px" }}> Executive Summary (Server Metrics)
               </strong>
               <span
                 style={{
@@ -588,8 +579,7 @@ function Home() {
                   color: "#5eead4",
                   fontWeight: 700,
                 }}
-              >
-                AI-generated
+              > AI-generated
               </span>
             </div>
             <div
@@ -605,7 +595,7 @@ function Home() {
           </div>
         )}
 
-        {/* â”€â”€ ADMIN / HR ANALYTICS DASHBOARD (P2) â”€â”€ */}
+        {/*  ADMIN / HR ANALYTICS DASHBOARD (P2)  */}
         {isPrivileged ? (
           <>
             {/* Filters Bar (Date Range & Department) */}
@@ -622,8 +612,7 @@ function Home() {
                 marginBottom: "20px",
               }}
             >
-              <span style={{ fontSize: "12.5px", color: "#94a3b8", fontWeight: 600 }}>
-                Analytics Filters:
+              <span style={{ fontSize: "12.5px", color: "#94a3b8", fontWeight: 600 }}> Analytics Filters:
               </span>
               <input
                 type="date"
@@ -664,8 +653,7 @@ function Home() {
                 <button
                   onClick={() => navigate("/manage-leaves")}
                   className="quick-btn"
-                >
-                  Pending Approvals ({kpis.pendingApprovals})
+                > Pending Approvals ({kpis.pendingApprovals})
                 </button>
               </div>
             </div>
@@ -747,8 +735,7 @@ function Home() {
               <div className="home-widget">
                 <h3>Top-5 Late-Comers (Selected Period)</h3>
                 {(analytics?.topLateComers || []).length === 0 ? (
-                  <p className="empty-text">
-                    Zero late arrivals recorded in this period!
+                  <p className="empty-text"> Zero late arrivals recorded in this period!
                   </p>
                 ) : (
                   <div style={{ display: "grid", gap: "10px", marginTop: "12px" }}>
@@ -795,11 +782,10 @@ function Home() {
                   ) : (
                     announcements.map((ann, i) => (
                       <div className="notice-card" key={ann.id || i}>
-                        <div className="notice-icon">ðŸ“¢</div>
+                        <div className="notice-icon"></div>
                         <div className="notice-content">
                           <p>{ann.message}</p>
-                          <small>
-                            By {ann.author} Â·{" "}
+                          <small> By {ann.author} |{" "}
                             {ann.createdAt?.toDate
                               ? ann.createdAt.toDate().toLocaleDateString()
                               : "Just now"}
@@ -815,43 +801,34 @@ function Home() {
             {/* All Employees Directory */}
             <section className="home-section">
               <div className="home-dir-header">
-                <h2 className="home-section-title" style={{ margin: 0 }}>
-                  All Employees Directory ({employees.length})
+                <h2 className="home-section-title" style={{ margin: 0 }}> All Employees Directory ({employees.length})
                 </h2>
                 {employees.length > 0 && (
                   <div className="home-export-bar">
                     <button
-                      onClick={() =>
-                        exportDirectoryToCSV(employees, "employee-directory")
+                      onClick={() => exportDirectoryToCSV(employees, "employee-directory")
                       }
-                    >
-                      CSV
+                    > CSV
                     </button>
                     <button
-                      onClick={() =>
-                        exportDirectoryToExcel(employees, "employee-directory")
+                      onClick={() => exportDirectoryToExcel(employees, "employee-directory")
                       }
-                    >
-                      Excel
+                    > Excel
                     </button>
                     <button
-                      onClick={() =>
-                        exportDirectoryToPDF(employees, "employee-directory")
+                      onClick={() => exportDirectoryToPDF(employees, "employee-directory")
                       }
-                    >
-                      PDF
+                    > PDF
                     </button>
                     <button
                       onClick={() => printElement("employee-directory-table")}
-                    >
-                      Print
+                    > Print
                     </button>
                   </div>
                 )}
               </div>
               {empLoading ? (
-                <p style={{ fontSize: "13px", color: "rgba(204, 251, 241,0.5)" }}>
-                  Loading...
+                <p style={{ fontSize: "13px", color: "rgba(240,238,255,0.5)" }}> Loading...
                 </p>
               ) : (
                 <div className="home-dir-card">
@@ -874,14 +851,14 @@ function Home() {
                         {employees.map((emp) => (
                           <tr key={emp.uid}>
                             <td>{displayNameFor(emp)}</td>
-                            <td>{emp.email || "â€”"}</td>
+                            <td>{emp.email || "-"}</td>
                             <td>{(emp.role || "employee").toUpperCase()}</td>
                             <td>{emp.department || "General"}</td>
                             <td>{emp.designation || "Staff"}</td>
-                            <td>{emp.personalInfo?.phone || "â€”"}</td>
-                            <td>{emp.personalInfo?.cnic || "â€”"}</td>
-                            <td>{emp.bankDetails?.providerName || "â€”"}</td>
-                            <td>{emp.bankDetails?.accountNumber || "â€”"}</td>
+                            <td>{emp.personalInfo?.phone || "-"}</td>
+                            <td>{emp.personalInfo?.cnic || "-"}</td>
+                            <td>{emp.bankDetails?.providerName || "-"}</td>
+                            <td>{emp.bankDetails?.accountNumber || "-"}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -892,7 +869,7 @@ function Home() {
             </section>
           </>
         ) : (
-          /* â”€â”€ EMPLOYEE PERSONAL DASHBOARD (P2 #14) â”€â”€ */
+          /*  EMPLOYEE PERSONAL DASHBOARD (P2 #14)  */
           <>
             <div className="home-widgets-grid">
               {/* Self Check-In / Out Widget */}
@@ -900,12 +877,11 @@ function Home() {
                 <h3>Today's Attendance</h3>
                 {personal.todayRecord ? (
                   <div className="home-my-status">
-                    <div className="status-circle status-success">âœ“</div>
+                    <div className="status-circle status-success"></div>
                     <h4>{statusLabel(personal.todayRecord)}</h4>
-                    <p>
-                      Check-In: {formatTime12(personal.todayRecord.checkInTime)}
+                    <p> Check-In: {formatTime12(personal.todayRecord.checkInTime)}
                       {personal.todayRecord.checkOutTime
-                        ? ` Â· Check-Out: ${formatTime12(
+                        ? ` | Check-Out: ${formatTime12(
                             personal.todayRecord.checkOutTime
                           )} (${personal.todayRecord.workedHours ?? 0}h)`
                         : ""}
@@ -932,7 +908,7 @@ function Home() {
                   </div>
                 ) : (
                   <div className="home-my-status">
-                    <div className="status-circle status-pending">â±</div>
+                    <div className="status-circle status-pending"></div>
                     <h4>Not Checked In Yet</h4>
                     <p>Office hours: 09:00 AM (Grace until 09:15 AM)</p>
                     <button
@@ -950,7 +926,7 @@ function Home() {
                         cursor: "pointer",
                       }}
                     >
-                      {checkBusy ? "Checking in..." : "âœ“ Check In Now"}
+                      {checkBusy ? "Checking in..." : " Check In Now"}
                     </button>
                   </div>
                 )}
@@ -983,8 +959,7 @@ function Home() {
                   </div>
                 </div>
 
-                <h4 className="upcoming-title" style={{ marginTop: "18px" }}>
-                  Leave Quota Balance
+                <h4 className="upcoming-title" style={{ marginTop: "18px" }}> Leave Quota Balance
                 </h4>
                 <div
                   style={{
@@ -1020,8 +995,7 @@ function Home() {
                   <div style={{ display: "grid", gap: "8px", marginTop: "12px", fontSize: "13px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
                       <span style={{ color: "#94a3b8" }}>Basic Salary:</span>
-                      <span>
-                        Rs.{" "}
+                      <span> Rs.{" "}
                         {Number(
                           personal.latestPayslip.basicSalary || 0
                         ).toLocaleString()}
@@ -1029,8 +1003,7 @@ function Home() {
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
                       <span style={{ color: "#94a3b8" }}>Gross (1.5x):</span>
-                      <span>
-                        Rs.{" "}
+                      <span> Rs.{" "}
                         {Number(
                           personal.latestPayslip.grossSalary || 0
                         ).toLocaleString()}
@@ -1056,8 +1029,7 @@ function Home() {
                       }}
                     >
                       <span>Net Pay:</span>
-                      <span style={{ color: "#34d399" }}>
-                        Rs.{" "}
+                      <span style={{ color: "#34d399" }}> Rs.{" "}
                         {Number(
                           personal.latestPayslip.netSalary || 0
                         ).toLocaleString()}
@@ -1065,10 +1037,9 @@ function Home() {
                     </div>
                     <button
                       type="button"
-                      onClick={() =>
-                        exportPayslipToPDF(
+                      onClick={() => exportPayslipToPDF(
                           personal.latestPayslip,
-                          "VertexHR Cloud Systems"
+                          "VertexHR Technologies"
                         )
                       }
                       style={{
@@ -1081,8 +1052,7 @@ function Home() {
                         fontWeight: 600,
                         cursor: "pointer",
                       }}
-                    >
-                      ðŸ“„ Download Payslip PDF
+                    > Download Payslip PDF
                     </button>
                   </div>
                 ) : (
@@ -1101,11 +1071,10 @@ function Home() {
                   ) : (
                     announcements.map((ann, i) => (
                       <div className="notice-card" key={ann.id || i}>
-                        <div className="notice-icon">ðŸ“¢</div>
+                        <div className="notice-icon"></div>
                         <div className="notice-content">
                           <p>{ann.message}</p>
-                          <small>
-                            By {ann.author} Â·{" "}
+                          <small> By {ann.author} |{" "}
                             {ann.createdAt?.toDate
                               ? ann.createdAt.toDate().toLocaleDateString()
                               : "Just now"}
@@ -1134,4 +1103,3 @@ const filterInputStyle = {
 };
 
 export default Home;
-

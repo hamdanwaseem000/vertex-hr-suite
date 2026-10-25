@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { useNavigate } from "react-router-dom";
@@ -151,11 +151,10 @@ function AdminAttendance() {
           <button
             className="admin-att-daily-btn"
             onClick={() => navigate("/daily-attendance")}
-          >
-            Daily Sheet & Corrections
+          > Daily Sheet & Corrections
           </button>
           <button className="admin-att-back-btn" onClick={() => navigate("/")}>
-            â† Back
+            <- Back
           </button>
         </div>
       </header>
@@ -164,8 +163,7 @@ function AdminAttendance() {
         <div className="admin-att-hero-glow" />
         <p className="admin-att-hero-date">Per-employee monthly record</p>
         <h1 className="admin-att-hero-title">Review Employee Attendance</h1>
-        <p className="admin-att-hero-sub">
-          Select an employee to view their Check-In, Check-Out, Half-Day, Late, and Leave breakdown.
+        <p className="admin-att-hero-sub"> Select an employee to view their Check-In, Check-Out, Half-Day, Late, and Leave breakdown.
         </p>
       </section>
 
@@ -208,25 +206,20 @@ function AdminAttendance() {
               />
               {rows.length > 0 && (
                 <div className="admin-att-export-bar">
-                  <button onClick={() => exportMonthToCSV(rows, fileName)}>
-                    CSV
+                  <button onClick={() => exportMonthToCSV(rows, fileName)}> CSV
                   </button>
-                  <button onClick={() => exportMonthToExcel(rows, fileName)}>
-                    Excel
+                  <button onClick={() => exportMonthToExcel(rows, fileName)}> Excel
                   </button>
                   <button
-                    onClick={() =>
-                      exportMonthToPDF(
+                    onClick={() => exportMonthToPDF(
                         rows,
                         fileName,
                         `${selectedName} - ${month}`
                       )
                     }
-                  >
-                    PDF
+                  > PDF
                   </button>
-                  <button onClick={() => printElement("admin-attendance-table")}>
-                    Print
+                  <button onClick={() => printElement("admin-attendance-table")}> Print
                   </button>
                 </div>
               )}
@@ -266,10 +259,10 @@ function AdminAttendance() {
                         <tr key={r.date}>
                           <td>{r.date}</td>
                           <td>{r.day}</td>
-                          <td>{r.time || "â€”"}</td>
-                          <td>{r.checkOut || "â€”"}</td>
+                          <td>{r.time || "-"}</td>
+                          <td>{r.checkOut || "-"}</td>
                           <td className={kindClass(r.kind)}>{r.label}</td>
-                          <td>{r.note || "â€”"}</td>
+                          <td>{r.note || "-"}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -285,4 +278,3 @@ function AdminAttendance() {
 }
 
 export default AdminAttendance;
-

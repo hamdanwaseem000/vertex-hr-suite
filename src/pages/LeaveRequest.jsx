@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../firebase";
@@ -173,8 +173,7 @@ function LeaveRequest() {
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-          </svg>
-          Back
+          </svg> Back
         </button>
       </header>
 
@@ -202,10 +201,9 @@ function LeaveRequest() {
                 {b.label}
               </div>
               <div style={{ fontSize: "24px", fontWeight: 800, margin: "6px 0" }}>
-                {b.quota === null ? "âˆž" : `${b.remaining} / ${b.quota}`}
+                {b.quota === null ? "" : `${b.remaining} / ${b.quota}`}
               </div>
-              <div style={{ fontSize: "11.5px", color: "#94a3b8" }}>
-                Used: {b.used}d Â· Pending: {b.pending}d
+              <div style={{ fontSize: "11.5px", color: "#94a3b8" }}> Used: {b.used}d | Pending: {b.pending}d
               </div>
             </div>
           ))}
@@ -223,8 +221,7 @@ function LeaveRequest() {
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-          <h2 style={{ margin: 0, fontSize: "17px" }}>
-            âœ¨ Smart Leave Assistant (English & Roman Urdu)
+          <h2 style={{ margin: 0, fontSize: "17px" }}> Smart Leave Assistant (English & Roman Urdu)
           </h2>
           <span
             style={{
@@ -232,16 +229,14 @@ function LeaveRequest() {
               padding: "3px 9px",
               borderRadius: "999px",
               background: "rgba(20, 184, 166, 0.25)",
-              color: "#ccfbf1",
+              color: "#99f6e4",
               fontWeight: 600,
             }}
-          >
-            AI-generated Pre-fill
+          > AI-generated Pre-fill
           </span>
         </div>
-        <p style={{ fontSize: "12.5px", color: "#cbd5e1", marginBottom: "12px" }}>
-          Type naturally â€” e.g. <em>"agle Monday Tuesday off chahiye, shaadi hai"</em> or{" "}
-          <em>"kal bukhar ki wajah se sick leave chahiye"</em> â€” and AI will pre-fill the form for your confirmation.
+        <p style={{ fontSize: "12.5px", color: "#cbd5e1", marginBottom: "12px" }}> Type naturally - e.g. <em>"agle Monday Tuesday off chahiye, shaadi hai"</em> or{" "}
+          <em>"kal bukhar ki wajah se sick leave chahiye"</em> - and AI will pre-fill the form for your confirmation.
         </p>
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
           <input
@@ -268,13 +263,13 @@ function LeaveRequest() {
               padding: "10px 18px",
               borderRadius: "10px",
               border: "none",
-              background: "linear-gradient(135deg, #14b8a6, #06b6d4)",
+              background: "linear-gradient(135deg, #10b981, #6366f1)",
               color: "#fff",
               fontWeight: 600,
               cursor: "pointer",
             }}
           >
-            {smartLoading ? "Parsing..." : "âœ¨ Auto-Fill Form"}
+            {smartLoading ? "Parsing..." : " Auto-Fill Form"}
           </button>
         </div>
       </section>
@@ -292,16 +287,14 @@ function LeaveRequest() {
                 color: "#6ee7b7",
                 fontWeight: 700,
               }}
-            >
-              âœ“ Pre-filled (AI-generated) â€” Please Confirm
+            > Pre-filled (AI-generated) - Please Confirm
             </span>
           )}
         </div>
 
         <form onSubmit={handleProcessRequest} className="leave-req-form">
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-            <label>
-              Request Category
+            <label> Request Category
               <select
                 value={requestType}
                 onChange={(event) => setRequestType(event.target.value)}
@@ -312,8 +305,7 @@ function LeaveRequest() {
             </label>
 
             {requestType === "leave" && (
-              <label>
-                Leave Quota Type
+              <label> Leave Quota Type
                 <select
                   value={leaveType}
                   onChange={(e) => setLeaveType(e.target.value)}
@@ -344,8 +336,7 @@ function LeaveRequest() {
             </label>
 
             {requestType === "leave" ? (
-              <label>
-                End Date
+              <label> End Date
                 <input
                   type="date"
                   value={endDate}
@@ -355,8 +346,7 @@ function LeaveRequest() {
                 />
               </label>
             ) : (
-              <label>
-                Expected Departure Time
+              <label> Expected Departure Time
                 <input
                   type="time"
                   value={earlyLeaveTime}
@@ -376,14 +366,12 @@ function LeaveRequest() {
                 fontSize: "13px",
                 color: "#cbd5e1",
               }}
-            >
-              ðŸ“… Working Days to Deduct (skipping weekends & public holidays):{" "}
+            > Working Days to Deduct (skipping weekends & public holidays):{" "}
               <strong style={{ color: "#2dd4bf" }}>{previewWorkingDays} day(s)</strong>
             </div>
           )}
 
-          <label>
-            Reason
+          <label> Reason
             <textarea
               rows={3}
               maxLength={1000}
@@ -477,8 +465,7 @@ function LeaveRequest() {
                       fontSize: "12px",
                       cursor: "pointer",
                     }}
-                  >
-                    Cancel Request
+                  > Cancel Request
                   </button>
                 )}
               </article>
@@ -491,4 +478,3 @@ function LeaveRequest() {
 }
 
 export default LeaveRequest;
-

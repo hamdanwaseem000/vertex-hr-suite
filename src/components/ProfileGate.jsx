@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 import { db, auth } from "../firebase";
@@ -60,8 +60,7 @@ function ProfileGate({ children }) {
         }}
       >
         <h2 style={{ color: "#f87171", marginBottom: 8 }}>Account Deactivated</h2>
-        <p style={{ color: "#94a3b8", maxWidth: 420, marginBottom: 20 }}>
-          Your account has been deactivated by the Company Administrator. Please contact HR or Admin for assistance.
+        <p style={{ color: "#94a3b8", maxWidth: 420, marginBottom: 20 }}> Your account has been deactivated by the Company Administrator. Please contact HR or Admin for assistance.
         </p>
         <button
           onClick={() => signOut(auth)}
@@ -74,8 +73,7 @@ function ProfileGate({ children }) {
             fontWeight: 600,
             cursor: "pointer",
           }}
-        >
-          Sign Out
+        > Sign Out
         </button>
       </div>
     );
@@ -95,4 +93,3 @@ function ProfileGate({ children }) {
 }
 
 export default ProfileGate;
-

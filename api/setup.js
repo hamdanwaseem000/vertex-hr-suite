@@ -19,7 +19,7 @@ module.exports = async function handler(req, res) {
     }
 
     const {
-      companyName = "VertexHR Cloud Systems",
+      companyName = "VertexHR Technologies",
       adminName = "System Admin",
       adminEmail,
       adminPassword,

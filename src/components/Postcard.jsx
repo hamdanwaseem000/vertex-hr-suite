@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
@@ -132,7 +132,7 @@ function PostCard({ post }) {
     return (
         <div className="pc-card">
 
-            {/* â”€â”€ User info â”€â”€ */}
+            {/*  User info  */}
             <div className="pc-user-row">
                 <div className="pc-user-left">
                     {post.photoURL ? (
@@ -158,7 +158,7 @@ function PostCard({ post }) {
 
             <div className="pc-divider" />
 
-            {/* â”€â”€ Content â”€â”€ */}
+            {/*  Content  */}
             {post.title && <h4 className="pc-title">{post.title}</h4>}
             <p className="pc-description">{post.description}</p>
 
@@ -171,14 +171,14 @@ function PostCard({ post }) {
                 />
             )}
 
-            {/* â”€â”€ Action buttons â”€â”€ */}
+            {/*  Action buttons  */}
             <div className="pc-actions">
 
                 <button
                     className={`pc-btn pc-btn-like ${liked ? "pc-btn-liked" : ""}`}
                     onClick={handleLike}
                 >
-                    {liked ? "â¤ï¸" : "ðŸ¤"}
+                    {liked ? "" : ""}
                     <span>{liked ? "Liked" : "Like"}</span>
                     <span className="pc-count">({likes})</span>
                 </button>
@@ -221,11 +221,10 @@ function PostCard({ post }) {
                 )}
             </div>
 
-            {/* â”€â”€ Comments accordion â”€â”€ */}
+            {/*  Comments accordion  */}
             <Accordion className="pc-accordion">
                 <Accordion.Item className="pc-accordion-item" eventKey="0">
-                    <Accordion.Header className="pc-accordion-header">
-                        ðŸ’¬ Comments ({comments.length})
+                    <Accordion.Header className="pc-accordion-header"> Comments ({comments.length})
                     </Accordion.Header>
                     <Accordion.Body className="pc-accordion-body">
 
@@ -279,7 +278,7 @@ function PostCard({ post }) {
                 </Accordion.Item>
             </Accordion>
 
-            {/* â”€â”€ Edit Modal â”€â”€ */}
+            {/*  Edit Modal  */}
             <Modal className="pc-modal" show={showEdit} onHide={() => setShowEdit(false)}>
                 <Modal.Header className="pc-modal-header" closeButton>
                     <Modal.Title className="pc-modal-title">Edit Post</Modal.Title>
@@ -300,11 +299,9 @@ function PostCard({ post }) {
                     />
                 </Modal.Body>
                 <Modal.Footer className="pc-modal-footer">
-                    <Button variant="secondary" className="pc-modal-cancel" onClick={() => setShowEdit(false)}>
-                        Cancel
+                    <Button variant="secondary" className="pc-modal-cancel" onClick={() => setShowEdit(false)}> Cancel
                     </Button>
-                    <Button className="pc-modal-save" onClick={handleUpdate}>
-                        Save Changes
+                    <Button className="pc-modal-save" onClick={handleUpdate}> Save Changes
                     </Button>
                 </Modal.Footer>
             </Modal>

@@ -1,4 +1,4 @@
-﻿import {
+import {
   calculateAttendanceStatus,
   evaluateCheckoutStatus,
   calculateWorkingDaysBetween,
@@ -10,7 +10,7 @@
   buildDefaultSchedule,
 } from "./utils/attendanceHelpers";
 
-describe("VertexHR, Leave & Payroll Core Engine Tests", () => {
+describe("VertexHR HR, Leave & Payroll Core Engine Tests", () => {
   const defaultSchedule = buildDefaultSchedule();
 
   test("1. Attendance status: present on or before 09:15, late after 09:15", () => {
@@ -134,4 +134,3 @@ describe("VertexHR, Leave & Payroll Core Engine Tests", () => {
     expect(d).toBe(0);
   });
 });
-

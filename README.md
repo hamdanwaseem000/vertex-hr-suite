@@ -1,4 +1,4 @@
-# VertexHR — Cloud Workforce, Attendance & Payroll Suite
+# VertexHR - Cloud Workforce, Attendance & Payroll Suite
 
 **VertexHR** is a full-stack HR, Attendance, Leave Management, Payroll, Analytics, and AI Copilot platform built with **React 19**, **Firebase (Auth + Firestore)**, **Vercel Serverless Functions (`firebase-admin`)**, and **Google Gemini 2.0 Flash**.
 
@@ -18,12 +18,12 @@ npm install
 1. Go to [Firebase Console](https://console.firebase.google.com/) using your new Google account.
 2. Click **"Add project"** (e.g., `vertex-hr-suite`).
 3. Inside the project:
-   - **Authentication**: Go to **Build → Authentication → Get Started → Sign-in method** and enable **Email/Password**.
-   - **Firestore Database**: Go to **Build → Firestore Database → Create database** (choose any region, start in Production mode).
+   - **Authentication**: Go to **Build -> Authentication -> Get Started -> Sign-in method** and enable **Email/Password**.
+   - **Firestore Database**: Go to **Build -> Firestore Database -> Create database** (choose any region, start in Production mode).
    - **Firestore Security Rules**: Go to the **Rules** tab inside Firestore Database, copy the entire contents of [`firestore.rules`](./firestore.rules) from this folder, paste it there, and click **Publish**.
 
 ### Step 3: Connect Your New Firebase Web App Config
-1. In Firebase Console, click the **Gear icon (Project Settings) → General → Your apps → Web (`</>`)**.
+1. In Firebase Console, click the **Gear icon (Project Settings) -> General -> Your apps -> Web (`</>`)**.
 2. Register the app (`VertexHR`) and copy the `firebaseConfig` keys.
 3. Either:
    - Create a `.env` file in the project root (copy from `.env.example`) and paste your keys:
@@ -44,15 +44,15 @@ Start the app locally:
 npm start
 ```
 - Because your new Firestore database is completely empty (no `settings/company` document), VertexHR will automatically open the **First-Run Setup Wizard (`/setup`)**.
-- Enter your **Company Name**, **Office Hours**, and **Primary Admin Name, Email, and Password** — it will create your Admin account and initialize the company configuration automatically!
+- Enter your **Company Name**, **Office Hours**, and **Primary Admin Name, Email, and Password** - it will create your Admin account and initialize the company configuration automatically!
 
 ---
 
 ## Deploying to Vercel or Firebase Hosting
 
-### Option A: Deploy to Vercel (Recommended — Includes `/api/*` Backend)
+### Option A: Deploy to Vercel (Recommended - Includes `/api/*` Backend)
 1. Push this folder to your new GitHub repository or run `npx vercel`.
-2. In **Vercel Project Settings → Environment Variables**, add the variables from `.env.example` (including `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` from Firebase Project Settings → Service Accounts, and `GEMINI_API_KEY`).
+2. In **Vercel Project Settings -> Environment Variables**, add the variables from `.env.example` (including `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY` from Firebase Project Settings -> Service Accounts, and `GEMINI_API_KEY`).
 
 ### Option B: Deploy to Firebase Hosting + Firestore Rules via CLI
 1. Update `.firebaserc` with your new Firebase Project ID.

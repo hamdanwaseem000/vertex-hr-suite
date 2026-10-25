@@ -1,6 +1,6 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap');
 
-/* â”€â”€ Navbar â”€â”€ */
+/*  Navbar  */
 .header-navbar {
   position: sticky;
   top: 0;
@@ -23,7 +23,7 @@
   justify-content: space-between;
 }
 
-/* â”€â”€ Brand â”€â”€ */
+/*  Brand  */
 .header-brand {
   display: flex;
   align-items: center;
@@ -53,14 +53,14 @@
   opacity: 0.8;
 }
 
-/* â”€â”€ Nav â”€â”€ */
+/*  Nav  */
 .header-nav {
   display: flex;
   align-items: center;
   gap: 0.3rem;
 }
 
-/* â”€â”€ Nav item: icon + slide-in label â”€â”€ */
+/*  Nav item: icon + slide-in label  */
 .header-nav-item {
   display: flex;
   align-items: center;
@@ -75,11 +75,11 @@
 }
 
 .header-nav-item:hover {
-  color: #ecfeff;
-  background: rgba(45, 212, 191, 0.12);
+  color: #f0eeff;
+  background: rgba(167, 139, 250, 0.12);
 }
 
-/* Icon â€” always visible */
+/* Icon - always visible */
 .header-nav-icon {
   display: flex;
   align-items: center;
@@ -91,7 +91,7 @@
   transform: translateX(-2px);
 }
 
-/* Label â€” hidden by default, slides in on hover */
+/* Label - hidden by default, slides in on hover */
 .header-nav-label {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.88rem;
@@ -113,7 +113,7 @@
   margin-left: 0.45rem;
 }
 
-/* â”€â”€ Logout button â”€â”€ */
+/*  Logout button  */
 .header-logout-btn {
   display: flex;
   align-items: center;
@@ -142,7 +142,7 @@
   transform: translateY(0);
 }
 
-/* â”€â”€ Mobile â”€â”€ */
+/*  Mobile  */
 @media (max-width: 600px) {
   .header-brand span {
     display: none;

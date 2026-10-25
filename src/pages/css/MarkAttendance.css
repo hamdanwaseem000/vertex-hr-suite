@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 * { box-sizing: border-box; }
 
@@ -6,11 +6,11 @@
   min-height: 100vh;
   background-color: #041116;
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(13, 148, 136, 0.22) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(99, 60, 255, 0.22) 0%, transparent 70%),
     repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.03) 39px, rgba(255,255,255,0.03) 40px),
     repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.03) 39px, rgba(255,255,255,0.03) 40px);
   padding: 40px 20px 70px;
-  color: #ecfeff;
+  color: #f0eeff;
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
@@ -62,10 +62,10 @@
   font-size: 10.5px;
   padding: 3px 10px;
   border-radius: 100px;
-  background: rgba(45, 212, 191, 0.12);
-  color: #99f6e4;
+  background: rgba(167, 139, 250, 0.12);
+  color: #c4b8f0;
   font-weight: 600;
-  border: 1px solid rgba(45, 212, 191, 0.25);
+  border: 1px solid rgba(167, 139, 250, 0.25);
 }
 
 .mark-att-back-btn {
@@ -74,7 +74,7 @@
   gap: 6px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.04);
-  color: #99f6e4;
+  color: #b8b3d0;
   font-size: 13px;
   font-weight: 500;
   padding: 9px 16px;
@@ -85,14 +85,14 @@
 }
 
 .mark-att-back-btn:hover {
-  border-color: rgba(45, 212, 191, 0.4);
+  border-color: rgba(167, 139, 250, 0.4);
   color: #fff;
-  background: rgba(45, 212, 191, 0.1);
+  background: rgba(167, 139, 250, 0.1);
 }
 
 .mark-att-loading {
   text-align: center;
-  color: rgba(204, 251, 241, 0.5);
+  color: rgba(240, 238, 255, 0.5);
   font-size: 13px;
 }
 
@@ -109,7 +109,7 @@
   padding: 44px 38px;
   overflow: hidden;
   text-align: center;
-  box-shadow: 0 0 0 1px rgba(13, 148, 136, 0.15), 0 30px 70px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255,255,255,0.07);
+  box-shadow: 0 0 0 1px rgba(99, 60, 255, 0.15), 0 30px 70px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255,255,255,0.07);
 }
 
 .mark-att-hero-glow {
@@ -147,7 +147,7 @@
   position: relative;
   font-size: 14.5px;
   font-weight: 300;
-  color: rgba(204, 251, 241, 0.55);
+  color: rgba(240, 238, 255, 0.55);
   margin: 0 auto 28px;
   max-width: 36ch;
 }
@@ -217,7 +217,7 @@
 }
 
 .mark-att-link:hover {
-  color: #99f6e4;
+  color: #c4b8f0;
 }
 
 @media (max-width: 480px) {

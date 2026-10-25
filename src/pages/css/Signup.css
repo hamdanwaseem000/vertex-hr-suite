@@ -1,6 +1,6 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap');
 
-/* â”€â”€ Page shell â”€â”€ */
+/*  Page shell  */
 .signup-container {
   min-height: 100vh;
   display: flex;
@@ -9,7 +9,7 @@
   justify-content: center;
   background-color: #041116;
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(13, 148, 136, 0.25) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(99, 60, 255, 0.25) 0%, transparent 70%),
     repeating-linear-gradient(
       0deg,
       transparent, transparent 39px,
@@ -27,7 +27,7 @@
   gap: 0.75rem;
 }
 
-/* â”€â”€ Card â”€â”€ */
+/*  Card  */
 .signup-form {
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -38,7 +38,7 @@
   width: 100%;
   max-width: 420px;
   box-shadow:
-    0 0 0 1px rgba(13, 148, 136, 0.15),
+    0 0 0 1px rgba(99, 60, 255, 0.15),
     0 40px 80px rgba(0, 0, 0, 0.6),
     inset 0 1px 0 rgba(255,255,255,0.07);
   animation: fadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -49,7 +49,7 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* â”€â”€ Title â”€â”€ */
+/*  Title  */
 .signup-title {
   font-family: 'Outfit', sans-serif;
   font-size: 2.6rem;
@@ -64,7 +64,7 @@
   background-clip: text;
 }
 
-/* â”€â”€ Inputs â”€â”€ */
+/*  Inputs  */
 .signup-input {
   width: 100%;
   box-sizing: border-box;
@@ -75,7 +75,7 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.95rem;
   font-weight: 400;
-  color: #ecfeff;
+  color: #f0eeff;
   outline: none;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
   caret-color: #2dd4bf;
@@ -87,12 +87,12 @@
 }
 
 .signup-input:focus {
-  border-color: rgba(45, 212, 191, 0.6);
-  background: rgba(45, 212, 191, 0.08);
-  box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.12);
+  border-color: rgba(167, 139, 250, 0.6);
+  background: rgba(167, 139, 250, 0.08);
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.12);
 }
 
-/* â”€â”€ Already have an account link â”€â”€ */
+/*  Already have an account link  */
 .login-forgot {
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 0.85rem;
@@ -110,7 +110,7 @@
   opacity: 1;
 }
 
-/* â”€â”€ Signup button â”€â”€ */
+/*  Signup button  */
 .signup-btn {
   width: 100%;
   padding: 0.9rem 1rem;
@@ -151,12 +151,12 @@
   box-shadow: 0 2px 12px rgba(5, 150, 105, 0.4);
 }
 
-/* â”€â”€ Divider â”€â”€ */
+/*  Divider  */
 .signup-container::before {
   content: '';
 }
 
-/* â”€â”€ Social buttons shared base â”€â”€ */
+/*  Social buttons shared base  */
 .social-btn {
   width: 100%;
   max-width: 420px;
@@ -186,11 +186,11 @@
   flex-shrink: 0;
 }
 
-/* â”€â”€ Google button â”€â”€ */
+/*  Google button  */
 .google-btn {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #ecfeff;
+  color: #f0eeff;
   box-shadow: 0 2px 12px rgba(0,0,0,0.3);
   animation: fadeUp 0.6s 0.15s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -206,11 +206,11 @@
   box-shadow: 0 6px 20px rgba(0,0,0,0.4);
 }
 
-/* â”€â”€ GitHub button â”€â”€ */
+/*  GitHub button  */
 .github-btn {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #ecfeff;
+  color: #f0eeff;
   box-shadow: 0 2px 12px rgba(0,0,0,0.3);
   animation: fadeUp 0.6s 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
