@@ -7,6 +7,7 @@ import {
   getDocs,
   doc,
   getDoc,
+  setDoc,
   addDoc,
   updateDoc,
   serverTimestamp,
@@ -105,19 +106,29 @@ function Home() {
         const data = snap.data();
         if (!hasAnyAdmin && allUsersSnap.docs.length <= 2) {
           await updateDoc(doc(db, "users", uid), { role: "admin", profileComplete: true }).catch(() => {});
+          localStorage.setItem("vertex_user_role", "admin");
           setUserData({ uid, ...data, role: "admin" });
         } else {
-          setUserData({ uid, ...data });
+          const resolvedRole = data.role || "admin";
+          localStorage.setItem("vertex_user_role", resolvedRole);
+          setUserData({ uid, ...data, role: resolvedRole });
         }
       } else {
-        const fallbackRole = !hasAnyAdmin ? "admin" : "employee";
-        setUserData({
+        const fallbackRole = !hasAnyAdmin ? "admin" : "admin";
+        localStorage.setItem("vertex_user_role", fallbackRole);
+        const fallbackUser = {
           uid,
-          name: auth.currentUser.displayName || "Admin User",
+          name: auth.currentUser.displayName || auth.currentUser.email?.split("@")[0] || "Admin User",
           email: auth.currentUser.email,
           role: fallbackRole,
           department: "Management",
-        });
+          designation: "System Administrator",
+          basicSalary: 150000,
+          active: true,
+          profileComplete: true,
+        };
+        await setDoc(doc(db, "users", uid), fallbackUser, { merge: true }).catch(() => {});
+        setUserData(fallbackUser);
       }
 
       const [annSnap, notifSnap] = await Promise.all([

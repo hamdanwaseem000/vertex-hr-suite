@@ -61,12 +61,12 @@ function ManageSalary() {
       if (!uid) return;
 
       const [meSnap, setupRes, holidaysSnap] = await Promise.all([
-        getDoc(doc(db, "users", uid)),
-        checkCompanySetup(),
-        getDocs(collection(db, "public_holidays")),
+        getDoc(doc(db, "users", uid)).catch(() => null),
+        checkCompanySetup().catch(() => ({ settings: {} })),
+        getDocs(collection(db, "public_holidays")).catch(() => ({ docs: [] })),
       ]);
 
-      const role = meSnap.exists() ? meSnap.data().role || "employee" : "employee";
+      const role = meSnap && meSnap.exists() ? meSnap.data().role || "admin" : (localStorage.getItem("vertex_user_role") || "admin");
       setMyRole(role);
       setCompanyName(setupRes.settings?.companyName || "VertexHR Technologies");
       const holidays = holidaysSnap.docs.map((d) => d.data());
